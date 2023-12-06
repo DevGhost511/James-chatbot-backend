@@ -5,8 +5,11 @@ from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from utils import get_response
 from utils import generate_kb
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
+
 load_dotenv()
 
 up.uses_netloc.append("postgres")
@@ -38,4 +41,4 @@ def query():
 if __name__ == '__main__':
    #  generate_kb()
     
-    app.run()
+    app.run(debug=True, port='0.0.0.0')
