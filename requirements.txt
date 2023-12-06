@@ -1,2 +1,1 @@
 Flask==3.0.0
-replicate==0.14.0
