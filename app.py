@@ -12,15 +12,15 @@ load_dotenv()
 
 up.uses_netloc.append("postgres")
 url = up.urlparse(os.getenv("DATABASE_URL"))
-try :
-   conn = psycopg2.connect(database=url.path[1:],
-                           user = url.username,
-                           password= url.password,
-                           host=url.hostname,
-                           port=url.port)
-   print(f"Connected to database: {url.path[1:]}")
-except :
-   print(f"Error connecting to database: {os.getenv('DATABASE_URL')}")
+# try :
+#    conn = psycopg2.connect(database=url.path[1:],
+#                            user = url.username,
+#                            password= url.password,
+#                            host=url.hostname,
+#                            port=url.port)
+#    print(f"Connected to database: {url.path[1:]}")
+# except :
+#    print(f"Error connecting to database: {os.getenv('DATABASE_URL')}")
 
 @app.route("/")
 def index():
