@@ -1,6 +1,5 @@
 import os
 import urllib.parse as up
-import psycopg2
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
