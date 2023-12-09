@@ -1,0 +1,337 @@
+Use your knowledge plus this knowledge to answer questions related to Cash / Fair Prices, CPT Codes, distances between hospitals for cheapest CPT code, proximity, etc.
+Here are tables of Hospital Cash / Fair Price (or similar) data at specific locations:
+
+Hospital name	CPT Code	Cash Price	Address	Longitude	Latitude
+Lakeland Regional Hospital	70551	$292	1324 Lakeland Hills Blvd, Lakeland, FL 33805, USA	28.068536	-81.939999
+AdventHealth Carrollwood	70551	$499	7171 N Dale Mabry Hwy, Tampa, FL 33614, USA	28.0081	-82.5032
+AdventHealth Celebration	70551	$499	400 Celebration Pl, Kissimmee, FL 34747, USA	28.3122	-81.5451
+AdventHealth Dade City	70551	$499	13100 Fort King Rd, Dade City, FL 33525, USA	28.3205	-82.1703
+AdventHealth Daytona Beach	70551	$499	301 Memorial Medical Pkwy, Daytona Beach, FL 32117, USA	29.2463	-81.0517
+AdventHealth Lake Placid	70551	$499	1210 US Hwy 27, Lake Placid, FL 33852, USA	27.2862	-81.3644
+AdventHealth North Pinellas	70551	$499	1395 S Pinellas Ave, Tarpon Springs, FL 34689, USA	28.1459	-82.7431
+AdventHealth Ocala	70551	$499	1500 SW 1st Ave, Ocala, FL 34471, USA	29.181	-82.1528
+AdventHealth Orlando	70551	$499	601 E Rollins St, Orlando, FL 32803, USA	28.57	-81.3654
+AdventHealth Sebring	70551	$499	4200 Sun N Lake Blvd, Sebring, FL 33872, USA	27.4626	-81.4467
+AdventHealth Tampa	70551	$499	3100 E Fletcher Ave, Tampa, FL 33613, USA	28.0664	-82.4139
+AdventHealth Waterman	70551	$499	1000 Waterman Way, Tavares, FL 32778, USA	28.7967	-81.7308
+AdventHealth Wauchula	70551	$499	735 S 5th Ave, Wauchula, FL 33873, USA	27.5461	-81.8098
+AdventHealth Wesley Chapel	70551	$499	2600 Bruce B Downs Blvd, Wesley Chapel, FL 33544, USA	28.1913	-82.3448
+AdventHealth Zephyrhills	70551	$499	7050 Gall Blvd, Zephyrhills, FL 33541, USA	28.2401	-82.1799
+AdventHealth Altamonte Springs	70551	$613	601 E Altamonte Dr, Altamonte Springs, FL 32701, USA	28.6626	-81.3695
+AdventHealth Apopka	70551	$613	2100 Ocoee Apopka Rd, Apopka, FL 32703, USA	28.6773	-81.4931
+AdventHealth Deland	70551	$613	701 W Plymouth Ave, DeLand, FL 32720, USA	29.0296	-81.3064
+AdventHealth Fish Memorial	70551	$613	1055 Saxon Blvd 1st Floor, Orange City, FL 32763, USA	28.9446	-81.2867
+AdventHealth Heart of Florida	70551	$613	40100 US Hwy 27, Davenport, FL 33837, USA	28.2563	-81.6728
+AdventHealth Lake Wales	70551	$613	410 S 11th St, Lake Wales, FL 33853, USA	27.8936	-81.5832
+AdventHealth Palm Coast Parkway	70551	$613	1 Adventhealth Wy, Palm Coast, FL 32137, United States	29.5794	-81.2065
+AdventHealth Winter Garden	70551	$613	2000 Fowler Grove Blvd, Winter Garden, FL 34787, USA	28.4512	-81.5943
+AdventHealth Winter Park	70551	$613	200 N Lakemont Ave, Winter Park, FL 32792, USA	28.6052	-81.3168
+AdventHealth New Smyrna Beach	70551	$793	401 Palmetto St, New Smyrna Beach, FL 32168, United States	29.0159	-80.9197
+AdventHealth Palm Coast	70551	$805	60 Memorial Medical Pkwy, Palm Coast, FL 32164, United States	29.5049	-81.2069
+UF Health Shands Hospital	70551	$1,155	1600 SW Archer Rd, Gainesville, FL 32608, USA	29.641725	-82.347732
+UF Health Shands Hospital	70551	$1,155	1600 SW Archer Rd, Gainesville, FL 32608, USA	29.641725	-82.347732
+UF Health Shands Hospital	70551	$1,348	1600 SW Archer Rd, Gainesville, FL 32608, USA	29.641725	-82.347732
+AdventHealth Kissimmee	70551	$1,451	2450 N Orange Blossom Trail, Kissimmee, FL 34744, USA	28.3172	-81.4148
+West Hospital	70551	$1,640	8383 N Davis Hwy, Pensacola, FL 32514, United States	30.5297	-87.2208
+Twin Cities Hospital	70551	$1,726	2190 FL-85 N, Niceville, FL 32578, USA	30.524406	-86.464688
+Capital Hospital	70551	$1,871	2626 Capital Medical Blvd, Tallahassee, FL 32308	30.438271	-84.303148
+Sarasota Memorial Health Care System	70551	$2,400	1700 S. Tamiami Trail Sarasota, FL 34239	27.3365	-82.531
+Sarasota Memorial Health Care System - OPT	70551	$2,400	1700 S. Tamiami Trail Sarasota, FL 34239	27.3365	-82.531
+UF Health Shands Hospital	70551	$2,485	1600 SW Archer Rd, Gainesville, FL 32608, USA	29.641725	-82.347732
+North Florida Hospital	70551	$3,360	6500 W Newberry Rd, Gainesville, FL 32605, USA	29.652983	-82.416682
+AdventHealth East Orlando	70551	$3,380	7727 Lake Underhill Rd, Orlando, FL 32822, USA	28.5189	-81.3089
+JFK North Hospital	70551	$3,545	2201 45th St, West Palm Beach, FL 33407, USA	26.748327	-80.080269
+Lake City Hospital	70551	$3,724	340 NW Commerce Dr, Lake City, FL 32055	30.189418	-82.639453
+Aventura Hospital	70551	$3,745	20900 Biscayne Blvd, Aventura, FL 33180, USA	25.961878	-80.142473
+Mercy Hospital	70551	$3,830	3663 S Miami Ave, Miami, FL 33133	25.747809	-80.294493
+University Hospital	70551	$3,920	476 S University Dr, Davie, FL 33328, United States	26.07522	-80.25307
+Blake Hospital	70551	$3,981	2020 59th St W, Bradenton, FL 34209, USA	27.477762	-82.636731
+Bayonet Point Hospital	70551	$4,064	14000 Fivay Rd, Hudson, FL 34667, USA	28.364844	-82.678796
+Brandon Hospital	70551	$4,223	119 Oakfield Dr, Brandon, FL 33511, USA	27.919474	-82.296905
+Trinity Hospital	70551	$4,321	9330 FL-54, Trinity, FL 34655	28.246175	-82.51481
+Tampa General Hospital	70551	$4,349	1 Tampa General Cir, Tampa, FL 33606, USA	27.9478	-82.4592
+Poinciana Hospital	70551	$4,951	325 Cypress Pkwy, Kissimmee, FL 34759, USA	28.082219	-81.502326
+Lawnwood Hospital	70551	$5,008	1700 S 23rd St, Fort Pierce, FL 34950, USA	27.423422	-80.332686
+Gulf Coast Hospital	70551	$5,252	13681 Doctors Way, Fort Myers, FL 33912, United States	26.544004	-81.849274
+Raulerson Hospital	70551	$5,277	1796 Highway 441 North, Okeechobee, FL 34972, USA	27.270652	-80.8436
+Northwest Hospital	70551	$5,585	2801 N State Rd 7, Margate, FL 33063	26.279251	-80.206594
+Westside Hospital	70551	$6,007	8201 W Broward Blvd, Plantation, FL 33324, USA	26.1205	-80.2588
+Fawcett Hospital	70551	$6,572	21298 Olean Blvd, Port Charlotte, FL 33952, USA	27.006365	-82.115609
+Fort Walton-Destin Hospital	70551	$7,135	1000 Mar Walt Dr, Fort Walton Beach, FL 32547, USA	30.453903	-86.629626
+Oak Hill Hospital	70551	$7,252	11375 Cortez Blvd, Brooksville, FL 34613, USA	28.558785	-82.539462
+Memorial Hospital	70551	$7,322	3625 University Blvd S, Jacksonville, FL 32216	30.332158	-81.695944
+Palms West Hospital	70551	$7,805	13001 Southern Blvd, Loxahatchee, FL 33470, USA	26.661592	-80.277413
+Largo Hospital	70551	$7,812	201 14th St SW, Largo, FL 33770, USA	27.908466	-82.802562
+Largo West Hospital	70551	$7,812	2025 Indian Rocks Rd, Largo, FL 33774, USA	27.882614	-82.846895
+Orange Park Hospital	70551	$8,003	2001 Kingsley Ave, Orange Park, FL 32073, United States	30.169042	-81.71545
+Osceola Hospital	70551	$8,414	700 W Oak St, Kissimmee, FL 34741, USA	28.298254	-81.417924
+UCF Lake Nona Hospital	70551	$8,485	6700 Lake Nona Blvd, Orlando, FL 32827, USA	28.379384	-81.25686
+Kendall Hospital	70551	$8,653	11750 SW 40th St, Miami, FL 33175, USA	25.731457	-80.414334
+Woodmont Hospital	70551	$9,269	7201 N University Dr, Tamarac, FL 33321, USA	26.2081	-80.252
+Sarasota Doctors Hospital	70551	$9,979	1700 S Tamiami Trail, Sarasota, FL 34239, United States	27.320965	-82.526554
+South Tampa Hospital	70551	$9,979	2901 W Swann Ave, Tampa, FL 33609, United States	27.939888	-82.482381
+St. Lucie Hospital	70551	$9,979	1800 SE Tiffany Ave, Port St. Lucie, FL 34952, United States	27.278607	-80.306372
+St. Petersburg Hospital	70551	$9,979	6500 38th Ave N, St. Petersburg, FL 33710, United States	27.800831	-82.742285
+Oviedo Medical Center	70551	$10,017	8300 Red Bug Lake Rd, Oviedo, FL 32765, USA	28.654859	-81.222529
+Lake Monroe Hospital	70551	$10,689	1401 W Seminole Blvd, Sanford, FL 32771, USA	28.805766	-81.301685
+Ocala Hospital	70551	$11,643	1431 SW 1st Ave, Ocala, FL 34471, United States	29.184018	-82.148473
+West Marion Hospital	70551	$11,643	4600 SW 46th Ct, Ocala, FL 34474, USA	29.1269	-82.2016
+Tampa General Hospital	71550	$2,958	1 Tampa General Cir, Tampa, FL 33606, USA	27.9478	-82.4592
+Orlando Health Imaging Centers Alafaya	72141	$233	2000 N Alafaya Trail #800, Orlando, FL 32826, USA	28.5888	-81.1997
+Orlando Health Imaging Centers Columbia	72141	$233	60 Columbia St 1st Floor, Orlando, FL 32806, United States	28.5224	-81.3663
+Orlando Health Imaging Centers Osceola	72141	$233	1210 E Osceola Pkwy Suite 103, Kissimmee, FL 34744, USA	28.323	-81.3893
+Orlando Health Imaging Centers Altamonte Springs	72141	$248	398 E Altamonte Dr, Altamonte Springs, FL 32701, USA	28.6655	-81.3659
+Orlando Health Imaging Centers Lake Mary	72141	$248	392 Rinehart Rd Suite 1040, Lake Mary, FL 32746, USA	28.7716	-81.335
+Orlando Health Imaging Centers Ocoee	72141	$248	10889 W Colonial Dr, Ocoee, FL 34761, USA	28.5496	-81.5309
+Orlando Health Imaging Centers Spring Lake	72141	$248	7243 Della Dr Suite C, Orlando, FL 32819, USA	28.437	-81.4805
+Orlando Health Imaging Centers Summerport	72141	$248	5151 Winter Garden Vineland Rd, Windermere, FL 34786, USA	28.471	-81.5613
+Orlando Health Imaging Centers Winter Park	72141	$248	1111 W Fairbanks Ave, Winter Park, FL 32789, USA	28.5962	-81.3598
+Lakeland Regional Hospital	72141	$284	1324 Lakeland Hills Blvd, Lakeland, FL 33805, USA	28.068536	-81.939999
+UF Health Shands Hospital	72141	$1,348	1600 SW Archer Rd, Gainesville, FL 32608, USA	29.641725	-82.347732
+Twin Cities Hospital	72141	$1,726	2190 FL-85 N, Niceville, FL 32578, USA	30.524406	-86.464688
+Capital Hospital	72141	$1,871	2626 Capital Medical Blvd, Tallahassee, FL 32308	30.438271	-84.303148
+Sarasota Memorial Health Care System	72141	$2,400	1700 S. Tamiami Trail Sarasota, FL 34239	27.3365	-82.531
+Sarasota Memorial Health Care System - OPT	72141	$2,400	1700 S. Tamiami Trail Sarasota, FL 34239	27.3365	-82.531
+UF Health Shands Hospital	72141	$2,612	1600 SW Archer Rd, Gainesville, FL 32608, USA	29.641725	-82.347732
+Oviedo Medical Center	72141	$3,000	8300 Red Bug Lake Rd, Oviedo, FL 32765, USA	28.654859	-81.222529
+Lake Monroe Hospital	72141	$3,201	1401 W Seminole Blvd, Sanford, FL 32771, USA	28.805766	-81.301685
+West Hospital	72141	$3,261	8383 N Davis Hwy, Pensacola, FL 32514, United States	30.5297	-87.2208
+North Florida Hospital	72141	$3,360	6500 W Newberry Rd, Gainesville, FL 32605, USA	29.652983	-82.416682
+Tampa General Hospital	72141	$3,365	1 Tampa General Cir, Tampa, FL 33606, USA	27.9478	-82.4592
+JFK North Hospital	72141	$3,672	2201 45th St, West Palm Beach, FL 33407, USA	26.748327	-80.080269
+Lake City Hospital	72141	$3,724	40 NW Commerce Dr, Lake City, FL 32055	30.189418	-82.639453
+Aventura Hospital	72141	$3,745	20900 Biscayne Blvd, Aventura, FL 33180, USA	25.961878	-80.142473
+Mercy Hospital	72141	$3,983	3663 S Miami Ave, Miami, FL 33133	25.747809	-80.294493
+Bayonet Point Hospital	72141	$4,064	14000 Fivay Rd, Hudson, FL 34667, USA	28.364844	-82.678796
+University Hospital	72141	$4,078	476 S University Dr, Davie, FL 33328, United States	26.07522	-80.25307
+Blake Hospital	72141	$4,145	2020 59th St W, Bradenton, FL 34209, USA	27.477762	-82.636731
+Brandon Hospital	72141	$4,223	119 Oakfield Dr, Brandon, FL 33511, USA	27.919474	-82.296905
+Trinity Hospital	72141	$4,321	9330 FL-54, Trinity, FL 34655	28.246175	-82.51481
+Westside Hospital	72141	$4,352	8201 W Broward Blvd, Plantation, FL 33324, USA	26.1205	-80.2588
+Raulerson Hospital	72141	$5,277	1796 Highway 441 North, Okeechobee, FL 34972, USA	27.270652	-80.8436
+Northwest Hospital	72141	$5,585	2801 N State Rd 7, Margate, FL 33063	26.279251	-80.206594
+Ocala Hospital	72141	$5,859	1431 SW 1st Ave, Ocala, FL 34471, United States	29.184018	-82.148473
+West Marion Hospital	72141	$5,859	4600 SW 46th Ct, Ocala, FL 34474, USA	29.1269	-82.2016
+Poinciana Hospital	72141	$5,996	325 Cypress Pkwy, Kissimmee, FL 34759, USA	28.082219	-81.502326
+Orange Park Hospital	72141	$6,478	2001 Kingsley Ave, Orange Park, FL 32073, United States	30.169042	-81.71545
+Fawcett Hospital	72141	$6,520	21298 Olean Blvd, Port Charlotte, FL 33952, USA	27.006365	-82.115609
+Gulf Coast Hospital	72141	$6,655	13681 Doctors Way, Fort Myers, FL 33912, United States	26.544004	-81.849274
+Lawnwood Hospital	72141	$7,068	1700 S 23rd St, Fort Pierce, FL 34950, USA	27.423422	-80.332686
+Fort Walton-Destin Hospital	72141	$7,135	1000 Mar Walt Dr, Fort Walton Beach, FL 32547, USA	30.453903	-86.629626
+Oak Hill Hospital	72141	$7,252	11375 Cortez Blvd, Brooksville, FL 34613, USA	28.558785	-82.539462
+Memorial Hospital	72141	$7,490	3625 University Blvd S, Jacksonville, FL 32216	30.332158	-81.695944
+Sarasota Doctors Hospital	72141	$7,545	1700 S Tamiami Trail, Sarasota, FL 34239, United States	27.320965	-82.526554
+South Shore Hospital	72141	$7,545	55 Fogg Rd, South Weymouth, MA 02190, USA	42.179309	-70.965139
+South Tampa Hospital	72141	$7,545	2901 W Swann Ave, Tampa, FL 33609, United States	27.939888	-82.482381
+St. Lucie Hospital	72141	$7,545	1800 SE Tiffany Ave, Port St. Lucie, FL 34952, United States	27.278607	-80.306372
+St. Petersburg Hospital	72141	$7,545	6500 38th Ave N, St. Petersburg, FL 33710, United States	27.800831	-82.742285
+Osceola Hospital	72141	$8,062	700 W Oak St, Kissimmee, FL 34741, USA	28.298254	-81.417924
+UCF Lake Nona Hospital	72141	$8,129	6700 Lake Nona Blvd, Orlando, FL 32827, USA	28.379384	-81.25686
+Largo Hospital	72141	$8,249	201 14th St SW, Largo, FL 33770, USA	27.908466	-82.802562
+Largo West Hospital	72141	$8,249	2025 Indian Rocks Rd, Largo, FL 33774, USA	27.882614	-82.846895
+Kendall Hospital	72141	$8,277	11750 SW 40th St, Miami, FL 33175, USA	25.731457	-80.414334
+Woodmont Hospital	72141	$9,269	7201 N University Dr, Tamarac, FL 33321, USA	26.2081	-80.252
+Tampa General Hospital	77066	$179	1 Tampa General Cir, Tampa, FL 33606, USA	27.9478	-82.4592
+Brandon Hospital	77066	$194	119 Oakfield Dr, Brandon, FL 33511, USA	27.919474	-82.296905
+Lakeland Regional Hospital	77066	$226	1324 Lakeland Hills Blvd, Lakeland, FL 33805, USA	28.068536	-81.939999
+Blake Hospital	77066	$234	2020 59th St W, Bradenton, FL 34209, USA	27.477762	-82.636731
+UF Health Shands Hospital	77066	$278	1600 SW Archer Rd, Gainesville, FL 32608, USA	29.641725	-82.347732
+UF Health Shands Hospital	77066	$278	1600 SW Archer Rd, Gainesville, FL 32608, USA	29.641725	-82.347732
+Mercy Hospital	77066	$296	3663 S Miami Ave, Miami, FL 33133	25.747809	-80.294493
+University Hospital	77066	$301	476 S University Dr, Davie, FL 33328, United States	26.07522	-80.25307
+Texas Health Huguley Parent Location	77066	$360	11801 South Fwy, Burleson, TX 76028, USA	32.5078	-97.3212
+AdventHealth Carrollwood	77066	$377	7171 N Dale Mabry Hwy, Tampa, FL 33614, USA	28.0081	-82.5032
+AdventHealth North Pinellas	77066	$377	1395 S Pinellas Ave, Tarpon Springs, FL 34689, USA	28.1459	-82.7431
+AdventHealth Sebring	77066	$377	4200 Sun N Lake Blvd, Sebring, FL 33872, USA	27.4626	-81.4467
+AdventHealth Tampa	77066	$377	3100 E Fletcher Ave, Tampa, FL 33613, USA	28.0664	-82.4139
+AdventHealth Wesley Chapel	77066	$377	2600 Bruce B Downs Blvd, Wesley Chapel, FL 33544, USA	28.1913	-82.3448
+AdventHealth Zephyrhills	77066	$377	7050 Gall Blvd, Zephyrhills, FL 33541, USA	28.2401	-82.1799
+AdventHealth Apopka	77066	$385	2100 Ocoee Apopka Rd, Apopka, FL 32703, USA	28.6773	-81.4931
+AdventHealth Celebration	77066	$385	400 Celebration Pl, Kissimmee, FL 34747, USA	28.3122	-81.5451
+AdventHealth Daytona Beach	77066	$385	301 Memorial Medical Pkwy, Daytona Beach, FL 32117, USA	29.2463	-81.0517
+AdventHealth Deland	77066	$385	701 W Plymouth Ave, DeLand, FL 32720, USA	29.0296	-81.3064
+AdventHealth East Orlando	77066	$385	7727 Lake Underhill Rd, Orlando, FL 32822, USA	28.5189	-81.3089
+AdventHealth Fish Memorial	77066	$385	1055 Saxon Blvd 1st Floor, Orange City, FL 32763, USA	28.9446	-81.2867
+AdventHealth Heart of Florida	77066	$385	40100 US Hwy 27, Davenport, FL 33837, USA	28.2563	-81.6728
+AdventHealth Kissimmee	77066	$385	2450 N Orange Blossom Trail, Kissimmee, FL 34744, USA	28.3172	-81.4148
+AdventHealth Lake Wales	77066	$385	410 S 11th St, Lake Wales, FL 33853, USA	27.8936	-81.5832
+AdventHealth New Smyrna Beach	77066	$385	401 Palmetto St, New Smyrna Beach, FL 32168, United States	29.0159	-80.9197
+AdventHealth Orlando	77066	$385	601 E Rollins St, Orlando, FL 32803, USA	28.57	-81.3654
+AdventHealth Palm Coast	77066	$385	60 Memorial Medical Pkwy, Palm Coast, FL 32164, United States	29.5049	-81.2069
+AdventHealth Waterman	77066	$385	1000 Waterman Way, Tavares, FL 32778, USA	28.7967	-81.7308
+AdventHealth Winter Park	77066	$385	200 N Lakemont Ave, Winter Park, FL 32792, USA	28.6052	-81.3168
+Northwest Hospital	77066	$400	2801 N State Rd 7, Margate, FL 33063	26.279251	-80.206594
+UF Health Shands Hospital	77066	$406	1600 SW Archer Rd, Gainesville, FL 32608, USA	29.641725	-82.347732
+West Hospital	77066	$431	8383 N Davis Hwy, Pensacola, FL 32514, United States	30.5297	-87.2208
+Sarasota Memorial Health Care System - OPT	77066	$450	1700 S. Tamiami Trail Sarasota, FL 34239	27.3365	-82.531
+UF Health Shands Hospital	77066	$458	1600 SW Archer Rd, Gainesville, FL 32608, USA	29.641725	-82.347732
+Capital Hospital	77066	$465	2626 Capital Medical Blvd, Tallahassee, FL 32308	30.438271	-84.303148
+Lake City Hospital	77066	$470	340 NW Commerce Dr, Lake City, FL 32055	30.189418	-82.639453
+Oak Hill Hospital	77066	$480	11375 Cortez Blvd, Brooksville, FL 34613, USA	28.558785	-82.539462
+Gulf Coast Hospital	77066	$484	13681 Doctors Way, Fort Myers, FL 33912, United States	26.544004	-81.849274
+Trinity Hospital	77066	$509	9330 FL-54, Trinity, FL 34655	28.246175	-82.51481
+UCF Lake Nona Hospital	77066	$534	6700 Lake Nona Blvd, Orlando, FL 32827, USA	28.379384	-81.25686
+Sarasota Doctors Hospital	77066	$566	1700 S Tamiami Trail, Sarasota, FL 34239, United States	27.320965	-82.526554
+South Tampa Hospital	77066	$566	2901 W Swann Ave, Tampa, FL 33609, United States	27.939888	-82.482381
+St. Lucie Hospital	77066	$566	1800 SE Tiffany Ave, Port St. Lucie, FL 34952, United States	27.278607	-80.306372
+St. Petersburg Hospital	77066	$566	6500 38th Ave N, St. Petersburg, FL 33710, United States	27.800831	-82.742285
+North Florida Hospital	77066	$574	6500 W Newberry Rd, Gainesville, FL 32605, USA	29.652983	-82.416682
+Oviedo Medical Center	77066	$578	8300 Red Bug Lake Rd, Oviedo, FL 32765, USA	28.654859	-81.222529
+Kendall Hospital	77066	$607	11750 SW 40th St, Miami, FL 33175, USA	25.731457	-80.414334
+Orlando Health St. Cloud Hospital	77066	$639	2906 17th St, St Cloud, FL 34769, USA	28.2368	-81.2886
+Lake Monroe Hospital	77066	$648	1401 W Seminole Blvd, Sanford, FL 32771, USA	28.805766	-81.301685
+Bayfront Health St. Petersburg	77066	$688	701 6th St S, St. Petersburg, FL 33701, USA	27.7722	-82.6458
+Orlando Health - Health Central Hospital	77066	$688	10000 W Colonial Dr, Ocoee, FL 34761, USA	28.5538	-81.5427
+Orlando Health Arnold Palmer Hospital for Children	77066	$688	92 W Miller St, Orlando, FL 32806, USA	28.5199	-81.3717
+Orlando Health Dr P. Phillips Hospital	77066	$688	9400 Turkey Lake Rd, Orlando, FL 32819, USA	28.4504	-81.48
+Orlando Health Horizon West Hospital	77066	$688	17000 Porter Rd, Winter Garden, FL 34787, USA	28.5738	-81.6006
+Orlando Health Jewett Orthopedic Institute	77066	$688	60 Columbia St Suite 501, Orlando, FL 32806, United States	28.5222	-81.3662
+Orlando Health Orlando Regional Medical Center	77066	$688	52 W Underwood St, Orlando, FL 32806, USA	28.5202	-81.3661
+Orlando Health South Lake Hospital	77066	$688	1900 Don Wickham Dr, Clermont, FL 34711, USA	28.5616	-81.7417
+Orlando Health South Seminole Hospital	77066	$688	555 W State Rd 434, Longwood, FL 32750, USA	28.6956	-81.3515
+Orlando Health Winnie Palmer Hospital for Women and Babies	77066	$688	83 W Miller St, Orlando, FL 32806, USA	28.5209	-81.3669
+Memorial Hospital	77066	$702	3501 Johnson St, Hollywood, FL 33021	30.332158	-81.695944
+UF Health Shands Hospital	77066	$718	1600 SW Archer Rd, Gainesville, FL 32608, USA	29.641725	-82.347732
+Fawcett Hospital	77066	$756	21298 Olean Blvd, Port Charlotte, FL 33952, USA	27.006365	-82.115609
+Poinciana Hospital	77066	$761	325 Cypress Pkwy, Kissimmee, FL 34759, USA	28.082219	-81.502326
+Sarasota Memorial Health Care System	77066	$777	1700 S. Tamiami Trail Sarasota, FL 34239	27.3365	-82.531
+Fort Walton-Destin Hospital	77066	$784	1000 Mar Walt Dr, Fort Walton Beach, FL 32547, USA	30.453903	-86.629626
+Orange Park Hospital	77066	$800	2001 Kingsley Ave, Orange Park, FL 32073, United States	30.169042	-81.71545
+Twin Cities Hospital	77066	$847	2190 FL-85 N, Niceville, FL 32578, USA	30.524406	-86.464688
+Largo Hospital	77066	$896	201 14th St SW, Largo, FL 33770, USA	27.908466	-82.802562
+Largo West Hospital	77066	$896	2025 Indian Rocks Rd, Largo, FL 33774, USA	27.882614	-82.846895
+Palms West Hospital	77066	$898	13001 Southern Blvd, Loxahatchee, FL 33470, USA	26.661592	-80.277413
+Aventura Hospital	77066	$957	20900 Biscayne Blvd, Aventura, FL 33180, USA	25.961878	-80.142473
+Osceola Hospital	77066	$1,724	700 W Oak St, Kissimmee, FL 34741, USA	28.298254	-81.417924
+Raulerson Hospital	77066	$2,167	1796 Highway 441 North, Okeechobee, FL 34972, USA	27.270652	-80.8436
+AdventHealth Altamonte Springs	93010	$74	601 E Altamonte Dr, Altamonte Springs, FL 32701, USA	28.6626	-81.3695
+AdventHealth Apopka	93010	$74	2100 Ocoee Apopka Rd, Apopka, FL 32703, USA	28.6773	-81.4931
+AdventHealth Celebration	93010	$74	400 Celebration Pl, Kissimmee, FL 34747, USA	28.3122	-81.5451
+AdventHealth Daytona Beach	93010	$74	301 Memorial Medical Pkwy, Daytona Beach, FL 32117, USA	29.2463	-81.0517
+AdventHealth Deland	93010	$74	701 W Plymouth Ave, DeLand, FL 32720, USA	29.0296	-81.3064
+AdventHealth East Orlando	93010	$74	7727 Lake Underhill Rd, Orlando, FL 32822, USA	28.5189	-81.3089
+AdventHealth Fish Memorial	93010	$74	1055 Saxon Blvd 1st Floor, Orange City, FL 32763, USA	28.9446	-81.2867
+AdventHealth Heart of Florida	93010	$74	40100 US Hwy 27, Davenport, FL 33837, USA	28.2563	-81.6728
+AdventHealth Kissimmee	93010	$74	2450 N Orange Blossom Trail, Kissimmee, FL 34744, USA	28.3172	-81.4148
+AdventHealth Lake Wales	93010	$74	410 S 11th St, Lake Wales, FL 33853, USA	27.8936	-81.5832
+AdventHealth New Smyrna Beach	93010	$74	401 Palmetto St, New Smyrna Beach, FL 32168, United States	29.0159	-80.9197
+AdventHealth Palm Coast	93010	$74	60 Memorial Medical Pkwy, Palm Coast, FL 32164, United States	29.5049	-81.2069
+AdventHealth Palm Coast Parkway	93010	$74	1 Adventhealth Wy, Palm Coast, FL 32137, United States	29.5794	-81.2065
+AdventHealth Waterman	93010	$74	1000 Waterman Way, Tavares, FL 32778, USA	28.7967	-81.7308
+AdventHealth Winter Garden	93010	$74	2000 Fowler Grove Blvd, Winter Garden, FL 34787, USA	28.4512	-81.5943
+AdventHealth Winter Park	93010	$74	200 N Lakemont Ave, Winter Park, FL 32792, USA	28.6052	-81.3168
+AdventHealth Carrollwood	93010	$115	7171 N Dale Mabry Hwy, Tampa, FL 33614, USA	28.0081	-82.5032
+AdventHealth Dade City	93010	$115	13100 Fort King Rd, Dade City, FL 33525, USA	28.3205	-82.1703
+AdventHealth Lake Placid	93010	$115	1210 US Hwy 27, Lake Placid, FL 33852, USA	27.2862	-81.3644
+AdventHealth North Pinellas	93010	$115	1395 S Pinellas Ave, Tarpon Springs, FL 34689, USA	28.1459	-82.7431
+AdventHealth Ocala	93010	$115	1500 SW 1st Ave, Ocala, FL 34471, USA	29.181	-82.1528
+AdventHealth Orlando	93010	$115	601 E Rollins St, Orlando, FL 32803, USA	28.57	-81.3654
+AdventHealth Sebring	93010	$115	4200 Sun N Lake Blvd, Sebring, FL 33872, USA	27.4626	-81.4467
+AdventHealth Tampa	93010	$115	3100 E Fletcher Ave, Tampa, FL 33613, USA	28.0698	-82.4124
+AdventHealth Wauchula	93010	$115	735 S 5th Ave, Wauchula, FL 33873, USA	27.5461	-81.8098
+AdventHealth Wesley Chapel	93010	$115	2600 Bruce B Downs Blvd, Wesley Chapel, FL 33544, USA	28.1913	-82.3448
+AdventHealth Zephyrhills	93010	$115	7050 Gall Blvd, Zephyrhills, FL 33541, USA	28.2401	-82.1799
+AdventHealth Connerton	93010	$125	9441 Health Center Dr, Land O' Lakes, FL 34637, USA	28.2932	-82.4919
+UF Health Shands Hospital	93010	$162	1600 SW Archer Rd, Gainesville, FL 32608, USA	29.641725	-82.347732
+Bayfront Health St. Petersburg	93010	$283	701 6th St S, St. Petersburg, FL 33701, USA	27.7722	-82.6458
+Orlando Health - Health Central Hospital	93010	$283	10000 W Colonial Dr, Ocoee, FL 34761, USA	28.5538	-81.5427
+Orlando Health Arnold Palmer Hospital for Children	93010	$283	92 W Miller St, Orlando, FL 32806, USA	28.5199	-81.3717
+Orlando Health Dr P. Phillips Hospital	93010	$283	9400 Turkey Lake Rd, Orlando, FL 32819, USA	28.4504	-81.48
+Orlando Health Horizon West Hospital	93010	$283	17000 Porter Rd, Winter Garden, FL 34787, USA	28.5738	-81.6006
+Orlando Health Jewett Orthopedic Institute	93010	$283	60 Columbia St Suite 501, Orlando, FL 32806, United States	28.5222	-81.3662
+Orlando Health Orlando Regional Medical Center	93010	$283	52 W Underwood St, Orlando, FL 32806, USA	28.5202	-81.3661
+Orlando Health South Lake Hospital	93010	$283	1900 Don Wickham Dr, Clermont, FL 34711, USA	28.5616	-81.7417
+Orlando Health South Seminole Hospital	93010	$283	555 W State Rd 434, Longwood, FL 32750, USA	28.6956	-81.3515
+Orlando Health St. Cloud Hospital	93010	$283	2906 17th St, St Cloud, FL 34769, USA	28.2368	-81.2886
+Orlando Health Winnie Palmer Hospital for Women and Babies	93010	$283	83 W Miller St, Orlando, FL 32806, USA	28.5209	-81.3669
+Kendall Hospital	93015	$334	11750 SW 40th St, Miami, FL 33175, USA	25.731457	-80.414334
+Tampa General Hospital	93015	$508	1 Tampa General Cir, Tampa, FL 33606, USA	27.9478	-82.4592
+Oak Hill Hospital	93015	$617	11375 Cortez Blvd, Brooksville, FL 34613, USA	28.558785	-82.539462
+Lakeland Regional Hospital	96130	$176	1324 Lakeland Hills Blvd, Lakeland, FL 33805, USA	28.068536	-81.939999
+Tampa General Hospital	99204	$165	1 Tampa General Cir, Tampa, FL 33606, USA	27.9478	-82.4592
+Bayfront Health St. Petersburg	99204	$200	701 6th St S, St. Petersburg, FL 33701, USA	27.7722	-82.6458
+Orlando Health - Health Central Hospital	99204	$200	10000 W Colonial Dr, Ocoee, FL 34761, USA	28.5538	-81.5427
+Orlando Health Arnold Palmer Hospital for Children	99204	$200	92 W Miller St, Orlando, FL 32806, USA	28.5199	-81.3717
+Orlando Health Dr P. Phillips Hospital	99204	$200	9400 Turkey Lake Rd, Orlando, FL 32819, USA	28.4504	-81.48
+Orlando Health Horizon West Hospital	99204	$200	17000 Porter Rd, Winter Garden, FL 34787, USA	28.5738	-81.6006
+Orlando Health Imaging Centers Alafaya	99204	$200	2000 N Alafaya Trail #800, Orlando, FL 32826, USA	28.5888	-81.1997
+Orlando Health Imaging Centers Altamonte Springs	99204	$200	398 E Altamonte Dr, Altamonte Springs, FL 32701, USA	28.6655	-81.3659
+Orlando Health Imaging Centers Columbia	99204	$200	60 Columbia St 1st Floor, Orlando, FL 32806, United States	28.5224	-81.3663
+Orlando Health Imaging Centers Lake Mary	99204	$200	392 Rinehart Rd Suite 1040, Lake Mary, FL 32746, USA	28.7716	-81.335
+Orlando Health Imaging Centers Ocoee	99204	$200	10889 W Colonial Dr, Ocoee, FL 34761, USA	28.5496	-81.5309
+Orlando Health Imaging Centers Osceola	99204	$200	1210 E Osceola Pkwy Suite 103, Kissimmee, FL 34744, USA	28.323	-81.3893
+Orlando Health Imaging Centers Spring Lake	99204	$200	7243 Della Dr Suite C, Orlando, FL 32819, USA	28.437	-81.4805
+Orlando Health Imaging Centers Summerport	99204	$200	5151 Winter Garden Vineland Rd, Windermere, FL 34786, USA	28.471	-81.5613
+Orlando Health Imaging Centers Winter Park	99204	$200	1111 W Fairbanks Ave, Winter Park, FL 32789, USA	28.5962	-81.3598
+Orlando Health Jewett Orthopedic Institute	99204	$200	60 Columbia St Suite 501, Orlando, FL 32806, United States	28.5222	-81.3662
+Orlando Health Labworks	99204	$200	7243 Della Dr suite e, Orlando, FL 32819, United States	28.4369	-81.4805
+Orlando Health Orlando Regional Medical Center	99204	$200	52 W Underwood St, Orlando, FL 32806, USA	28.5202	-81.3661
+Orlando Health South Lake Hospital	99204	$200	1900 Don Wickham Dr, Clermont, FL 34711, USA	28.5616	-81.7417
+Orlando Health South Seminole Hospital	99204	$200	555 W State Rd 434, Longwood, FL 32750, USA	28.6956	-81.3515
+Orlando Health Winnie Palmer Hospital for Women and Babies	99204	$200	83 W Miller St, Orlando, FL 32806, USA	28.5209	-81.3669
+Largo Hospital	99204	$238	201 14th St SW, Largo, FL 33770, USA	27.908466	-82.802562
+Largo West Hospital	99204	$238	2025 Indian Rocks Rd, Largo, FL 33774, USA	27.882614	-82.846895
+Lakeland Regional Hospital	99204	$244	1324 Lakeland Hills Blvd, Lakeland, FL 33805, USA	28.068536	-81.939999
+Bayonet Point Hospital	99204	$251	14000 Fivay Rd, Hudson, FL 34667, USA	28.364844	-82.678796
+Sarasota Memorial Health Care System - OPT	99204	$300	1700 S. Tamiami Trail Sarasota, FL 34239	27.3365	-82.531
+UCF Lake Nona Hospital	99204	$321	6700 Lake Nona Blvd, Orlando, FL 32827, USA	28.379384	-81.25686
+Kendall Hospital	99204	$334	11750 SW 40th St, Miami, FL 33175, USA	25.731457	-80.414334
+North Florida Hospital	99204	$337	6500 W Newberry Rd, Gainesville, FL 32605, USA	29.652983	-82.416682
+Orlando Health St. Cloud Hospital	99204	$338	2906 17th St, St Cloud, FL 34769, USA	28.2368	-81.2886
+UF Health Shands Hospital	99204	$349	1600 SW Archer Rd, Gainesville, FL 32608, USA	29.641725	-82.347732
+UF Health Shands Hospital	99204	$349	1600 SW Archer Rd, Gainesville, FL 32608, USA	29.641725	-82.347732
+UF Health Shands Hospital	99204	$349	1600 SW Archer Rd, Gainesville, FL 32608, USA	29.641725	-82.347732
+UF Health Shands Hospital	99204	$399	1600 SW Archer Rd, Gainesville, FL 32608, USA	29.641725	-82.347732
+Lakeland Regional Hospital	99204	$403	1324 Lakeland Hills Blvd, Lakeland, FL 33805, USA	28.068536	-81.939999
+Tampa General Hospital	99204	$413	1 Tampa General Cir, Tampa, FL 33606, USA	27.9478	-82.4592
+Sarasota Memorial Health Care System	99204	$587	1700 S. Tamiami Trail Sarasota, FL 34239	27.3365	-82.531
+Oak Hill Hospital	99204	$617	11375 Cortez Blvd, Brooksville, FL 34613, USA	28.558785	-82.539462
+UF Health Shands Hospital	99204	$641	1600 SW Archer Rd, Gainesville, FL 32608, USA	29.641725	-82.347732
+Ocala Hospital	99204	$730	1431 SW 1st Ave, Ocala, FL 34471, United States	29.184018	-82.148473
+West Marion Hospital	99204	$730	4600 SW 46th Ct, Ocala, FL 34474, USA	29.1269	-82.2016
+Aventura Hospital	99204	$878	20900 Biscayne Blvd, Aventura, FL 33180, USA	25.961878	-80.142473
+Mercy Hospital	99204	$917	3663 S Miami Ave, Miami, FL 33133	25.747809	-80.294493
+Brandon Hospital	99204	$950	119 Oakfield Dr, Brandon, FL 33511, USA	27.919474	-82.296905
+Trinity Hospital	99204	$996	9330 FL-54, Trinity, FL 34655	28.246175	-82.51481
+Osceola Hospital	99204	$1,229	700 W Oak St, Kissimmee, FL 34741, USA	28.298254	-81.417924
+Woodmont Hospital	99204	$1,235	7201 N University Dr, Tamarac, FL 33321, USA	26.2081	-80.252
+Raulerson Hospital	99204	$1,335	1796 Highway 441 North, Okeechobee, FL 34972, USA	27.270652	-80.8436
+Fawcett Hospital	99204	$1,665	21298 Olean Blvd, Port Charlotte, FL 33952, USA	27.006365	-82.115609
+Memorial Hospital	99204	$2,077	3501 Johnson St, Hollywood, FL 33021	30.332158	-81.695944
+Lakeland Regional Hospital	99214	$186	1324 Lakeland Hills Blvd, Lakeland, FL 33805, USA	28.068536	-81.939999
+Lakeland Regional Hospital	99214	$186	1324 Lakeland Hills Blvd, Lakeland, FL 33805, USA	28.068536	-81.939999
+Lakeland Regional Hospital	99214	$289	1324 Lakeland Hills Blvd, Lakeland, FL 33805, USA	28.068536	-81.939999
+Sarasota Memorial Health Care System - OPT	99214	$300	1700 S. Tamiami Trail Sarasota, FL 34239	27.3365	-82.531
+UF Health Shands Hospital	99214	$308	1600 SW Archer Rd, Gainesville, FL 32608, USA	29.641725	-82.347732
+UF Health Shands Hospital	99214	$315	1600 SW Archer Rd, Gainesville, FL 32608, USA	29.641725	-82.347732
+Tampa General Hospital	99214	$366	1 Tampa General Cir, Tampa, FL 33606, USA	27.9478	-82.4592
+UF Health Shands Hospital	99214	$511	655 8th St W, Jacksonville, FL 32209, United States	30.349799	-81.682644
+Sarasota Memorial Health Care System	99214	$587	1700 S. Tamiami Trail Sarasota, FL 34239	27.3365	-82.531
+Tampa General Hospital	99214	$914	1 Tampa General Cir, Tampa, FL 33606, USA	27.9478	-82.4592
+Uf Health Leesburg Hospital	99281	$546	600 E Dixie Ave, Leesburg, FL 34748, USA	28.818469	-81.876305
+----
+Additional Generic Information about the Hospitals in this data set and the data above to further assist:
+Common CPT Codes Used	CPT Universal Description if Undefined	Average CPT Price Across All Hospitals in South Florida
+99214	OFFICE O/P EST MOD 30 MIN	$500
+99281	Emergency Dept Visit	$546
+93010	EKG with Interpretation	$143
+71550	MRI Chest without contrast	$2,958
+70551	BRAIN MRI without contract	$3,583
+72141	MRI Cervical Spine	$4,155
+77066	Diagnostic Mammography	$582
+99204	Office visit New Patient	$500
+93015	Treadmill Cardiac Stress Testing	$421
+96130	Psychological Evaluation (initial)	$527
+----
+This is the best cash prices in the state of Florida:
+Hospital name	CPT Code	Cash Price	Address	Longitude	Latitude
+Lakeland Regional Hospital	70551	$292	1324 Lakeland Hills Blvd, Lakeland, FL 33805, USA	28.068536	-81.939999
+Tampa General Hospital	71550	$2,958	1 Tampa General Cir, Tampa, FL 33606, USA	27.9478	-82.4592
+Orlando Health Imaging Centers Alafaya	72141	$233	2000 N Alafaya Trail #800, Orlando, FL 32826, USA	28.5888	-81.1997
+Tampa General Hospital	77066	$179	1 Tampa General Cir, Tampa, FL 33606, USA	27.9478	-82.4592
+AdventHealth Altamonte Springs	93010	$74	601 E Altamonte Dr, Altamonte Springs, FL 32701, USA	28.6626	-81.3695
+Kendall Hospital	93015	$334	11750 SW 40th St, Miami, FL 33175, USA	25.731457	-80.414334
+Lakeland Regional Hospital	96130	$176	1324 Lakeland Hills Blvd, Lakeland, FL 33805, USA	28.068536	-81.939999
+Tampa General Hospital	99204	$165	1 Tampa General Cir, Tampa, FL 33606, USA	27.9478	-82.4592
+Lakeland Regional Hospital	99214	$186	1324 Lakeland Hills Blvd, Lakeland, FL 33805, USA	28.068536	-81.939999
+Uf Health Leesburg Hospital	99281	$546	600 E Dixie Ave, Leesburg, FL 34748, USA	28.818469	-81.876305
