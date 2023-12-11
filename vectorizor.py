@@ -42,22 +42,23 @@ def query_refiner(conversation, query):
     return response.choices[0].message.content
 
 def simple_generate(query):
+    prompt = f'Q: Give me 3 different related queries with {query}. A:'
     response = openai.chat.completions.create(
         model="gpt-4",
         messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": query}
+            {"role": "system", "content": "You are a helpful related topic generator. Only provide 3 topics at once."},
+            {"role": "user", "content": prompt}
         ]
     )
     return response.choices[0].message.content
 
 # Generate the answer 
-def generate_answer(query, template, user_id,knowledge_name, latest_records):
+def generate_answer(query, template, user_id, knowledge_name, latest_records):
     prompt = PromptTemplate(
         input_variables=["chat_history", "human_input", "context"],
         template=template
     )
-    id = user_id+knowledge_name
+    id = str(user_id)+str(knowledge_name)
 
     # print("ID >>>", id)
     pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
@@ -68,15 +69,18 @@ def generate_answer(query, template, user_id,knowledge_name, latest_records):
         index_name=PINECONE_INDEX_NAME, embedding= embeddings
     )
 
-    docs = docsearch.similarity_search(query, k=8, filter={'source': id})
+    docs = docsearch.similarity_search(query, k=8, filter={'assistant': knowledge_name})
     
     chat_openai = ChatOpenAI(temperature = 0.7, model = "gpt-4", openai_api_key = OPENAI_API_KEY)
 
     chain = load_qa_chain(chat_openai, chain_type="stuff", prompt=prompt, memory=memory)
     if len(latest_records) == 0:
         print("No history>..")
-    # for index, record in enumerate(latest_records):
-    #     chain.memory.save_context({'human_input':record.query}, {'output':record.answer})
+    for index, record in enumerate(latest_records):
+        # print(record['user_query'])
+        chain.memory.save_context({'human_input':record['user_query']}, {'output':record['response']})
+    
+    
     output = chain ({'input_documents':docs, 'human_input': query}, return_only_outputs=False)   
     chain.memory.clear()
 
@@ -96,6 +100,7 @@ def init_pinecone(index_name, dimension):
     if index_name not in pinecone.list_indexes():
         pinecone.create_index(index_name, dimension=dimension)
     return pinecone.Index(index_name)
+
 # Storing and Retrieving Embeddings with Pinecone
 def store_embeddings_in_pinecone(chunks, metalist):
     try:
@@ -115,18 +120,37 @@ def retrieve_embeddings_from_pinecone(index_name, query_embedding):
     results = vector_store.query(queries=query_embedding)
     return results
 
-# Utilizing Langchain's Large Language Model (LLM)
-# def answer_question_using_llm(question, embeddings):
-    # llm = LargeLanguageModel(model_name='gpt-4-32k-0613')
-    # answer = llm.answer_question(question, embeddings)
-    # return answer
+# Delete all records of the index
+def del_all_records():
+    try:
+        index.delete(delete_all=True)
+        return True
+    except:
+        return False
 
-# Initialize Pinecone index
-def init_pinecone(index_name):
-    pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
-    if index_name not in pinecone.list_indexes():
-        pinecone.create_index(index_name, dimension=PINECONE_INDEX_DIMENSION)
-    return pinecone.Index(index_name)
+def del_knowledgebase_by_assistant_id(assistant_id):
+    try :
+        index.delete(
+            filter={
+                'assistant':1,
+                'knowledge':1
+            }
+        )
+        print('Deleted assistant ', assistant_id)
+        return True
+    except :
+        return False
+
+def del_knowledge_by_knowledge_id(knowledge_id):
+    try:
+        index.delete(
+            filter={
+                'knowledge':knowledge_id
+            }
+        )
+        return True
+    except:
+        return False
 
 # Create embeddings and populate the index with the train data
 def create_and_index_embeddings(text_chunks, metalist):

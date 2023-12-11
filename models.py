@@ -130,5 +130,33 @@ class Assistant(db.Model):
     def __repr__(self):
         return f"<Assistant {self.name}>"
     
+class ChatHistory(db.Model):
+    __tablename__ = 'chat_history'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement = True)
+    user_id = db.Column(db.Integer, nullable = False)
+    user_query = db.Column(db.String(), nullable = False)
+    response = db.Column(db.String(), nullable = False)
+    created_at = db.Column(db.DateTime, nullable = False,  default=datetime.utcnow)
+
+    def __init__(self, user_id, user_query, response):
+        self.user_id = user_id
+        self.user_query = user_query
+        self.response = response
+
+    def json(self):
+        return {'id':self.id, 'user_id':self.user_id, 'user_query':self.user_query, 'response':self.response}
+    
+    def pre_json(self):
+        return [
+            {'id':self.id, 'user_id':self.user_id, 'sender':'you', 'message':self.user_query},
+            {'id':self.id, 'user_id':self.id, 'sender':'bot', 'message':self.response}
+        ]
+    
+    def __repr__(self):
+        return f"<ChatHistory {self.id}>"
+    
+
+    
 
     
