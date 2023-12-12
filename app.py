@@ -1,19 +1,15 @@
 import os
-import urllib.parse as up
-import random
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify, make_response
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func, desc
-# from utils import generate_kb, generate_kb_from_txt
 from flask_cors import CORS
-import psycopg2
 from flask_migrate import Migrate
 from werkzeug.utils import secure_filename
 from utils import get_response
 from utils import generate_kb_from_file, generate_kb_from_url
 from models import db, PushPrompt, PrePrompt, CloserPrompt, KnowledgeBase, Assistant, ChatHistory
 from vectorizor import del_knowledge_by_knowledge_id, del_knowledgebase_by_assistant_id, del_all_records, simple_generate
+
 app = Flask(__name__)
 # app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db?check_same_thread=False&mode=WAL'
@@ -28,8 +24,8 @@ CORS(app)
 @app.route("/")
 def index():
    # db.create_all()
-   del_all_records()
-   print('Deleted')
+   # del_all_records()
+   # print('Deleted')
    return "This is APIs for CustomGPT!"
 
 # Response to the query
@@ -427,6 +423,7 @@ def get_initial_prompts():
       return make_response(jsonify([preprompt.json() for preprompt in preprompts]))
 
    return make_response(jsonify({'result':'None'}))
+
 
 if __name__ == '__main__':
    app.run(debug=True)

@@ -90,12 +90,12 @@ def generate_kb_from_url(assistant_id, knowledge_id, url):
         return False
 
 def get_response(query, latest_records, user_id, assistatnt_id):
-    template = """The following is a friendly conversation between a human and an AI. The AI is talkative and provides lots of specific details from its context. If there is no conversation history, plz provide proper answer automatically based on the query.
+    template = """The following is a friendly conversation between a human and an assistant. The assistant is talkative and provides lots of specific details from its context. If there is no related context, plz provide proper answer automatically based on the query.
         The response mush be less than 100 words.
         Context:{context}
         Chat history:{chat_history}
         Human: {human_input}
-        AI:"""
+        Assistant:"""
     answer = generate_answer(query=query, user_id = user_id, knowledge_name=assistatnt_id, latest_records=latest_records, template=template)
     
     return answer

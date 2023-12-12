@@ -50,7 +50,6 @@ class PrePrompt(db.Model):
     prompt = db.Column(db.String(), nullable = False)
     created_at = db.Column(db.DateTime, nullable = False,  default=datetime.utcnow)
 
-
     def __init__(self, title, prompt):
         self.title = title        
         self.prompt = prompt      
