@@ -5,6 +5,7 @@
       "use": "@vercel/python"
     }
   ],
+  "buildCommand": "python app.py",
   "routes": [
     {
       "src": "/(.*)",

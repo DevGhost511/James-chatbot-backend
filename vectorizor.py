@@ -58,9 +58,7 @@ def generate_answer(query, template, user_id, knowledge_name, latest_records):
         input_variables=["chat_history", "human_input", "context"],
         template=template
     )
-    id = str(user_id)+str(knowledge_name)
 
-    # print("ID >>>", id)
     pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
     memory = ConversationBufferMemory(memory_key="chat_history", input_key="human_input")
     embeddings = OpenAIEmbeddings(openai_api_key=OPENAI_API_KEY)
@@ -69,8 +67,8 @@ def generate_answer(query, template, user_id, knowledge_name, latest_records):
         index_name=PINECONE_INDEX_NAME, embedding= embeddings
     )
 
-    docs = docsearch.similarity_search(query, k=8, filter={'assistant': knowledge_name})
-    
+    docs = docsearch.similarity_search(query, k=8, filter={'assistant': '1'})
+    print(docs)
     chat_openai = ChatOpenAI(temperature = 0.7, model = "gpt-4", openai_api_key = OPENAI_API_KEY)
 
     chain = load_qa_chain(chat_openai, chain_type="stuff", prompt=prompt, memory=memory)
