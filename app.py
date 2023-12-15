@@ -1,13 +1,13 @@
 import os
+import uuid
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify, make_response
 from sqlalchemy import func, desc
 from flask_cors import CORS
 from flask_migrate import Migrate
 from werkzeug.utils import secure_filename
-from utils import get_response
-from utils import generate_kb_from_file, generate_kb_from_url
-from models import db, PushPrompt, PrePrompt, CloserPrompt, KnowledgeBase, Assistant, ChatHistory, InheritChat
+from utils import generate_kb_from_file, generate_kb_from_url, get_response
+from models import db, User, PushPrompt, PrePrompt, CloserPrompt, KnowledgeBase, Assistant, ChatHistory, InheritChat
 from vectorizor import del_knowledge_by_knowledge_id, del_knowledgebase_by_assistant_id, del_all_records, simple_generate, query_with_dolt
 
 app = Flask(__name__)
@@ -53,8 +53,7 @@ def query():
       pre_prompts= simple_generate(query)
       pre_prompts = pre_prompts.replace('1. ', '').replace('2. ', '').replace('3. ', '').replace('. ', '.').replace('"','')
       pre_prompts = pre_prompts.split('\n')
-      print(pre_prompts)
-      new_chat = ChatHistory(user_id=0, user_query=query, response=response)
+      new_chat = ChatHistory(user_id=user_id, user_query=query, response=response)
       #  Save messages to database  
       db.session.add(new_chat)
       db.session.commit()
@@ -78,6 +77,7 @@ def del_message():
       return make_response(jsonify({'chat_id':chat_id}), 201)
    except:
       return make_response(jsonify({'result':'Failed!'}), 201)
+
 # Get chat history
 @app.route('/get_chat_history', methods =['POST'])
 def get_chats():
@@ -85,11 +85,19 @@ def get_chats():
       data = request.get_json()
       print(data)
       user_id = data['user_id']
-      # inherit_chat = InheritChat.query.filter_by(user_id=user_id).first()
-      # if inherit_chat:
-      #    inherit_user = inherit_chat.inherit_user
-      #    count = inherit_chat.count
+      if 'hsitory_id' in data:
+         history_id = data['history_id']
+         print('From shared history...')
+         pre_chats = ChatHistory.query.filter_by(user_id=user_id).all()
+         db.session.delete(pre_chats)
+         db.session.commit()
+         shared_chats = InheritChat.query.filter_by(history_id=history_id).all()
+         for chat in shared_chats:
+            new_chat = ChatHistory(user_id=user_id, user_query=chat.user_query, response=chat.response)
+            db.session.add(new_chat)
+            db.session.commit()
       chats = ChatHistory.query.filter_by(user_id=user_id).all()
+      print('No shared')
       if chats:
          return make_response(jsonify([chat.json() for chat in chats]), 201)
       return make_response(jsonify({'result':'Not found!'}))
@@ -437,6 +445,7 @@ def get_initial_prompts():
       return make_response(jsonify([preprompt.json() for preprompt in preprompts]))
 
    return make_response(jsonify({'result':'None'}))
+
 # Response from dolt
 @app.route('/query_from_dolt', methods=['POST'])
 def query_from_dolt():
@@ -445,6 +454,32 @@ def query_from_dolt():
    res = query_with_dolt(query)
    return res
 
+# Share the link
+@app.route('/share_chat', methods = ['POST'])
+def share_chat():
+   try:
+      data = request.get_json()
+      user_id = data['user_id']
+
+      user = User.query.filter_by(id=user_id).first()
+      if user.shared == 0:
+         user.shared = 1
+         history_id = str(uuid.uuid4())
+         user.history_id = history_id
+         with app.app_context():
+            chats = ChatHistory.query.filter_by(user_id=user_id).all()
+            for chat in chats:
+               new_history = InheritChat(history_id=history_id, user_query=chat.user_query, response=chat.response)
+               db.session.add(new_history)
+               db.session.commit()
+         return make_response(jsonify({'history_id':history_id}), 201)
+      history_id = user.history_id
+      return make_response(jsonify({'history_id':history_id}), 201)
+
+   except Exception as e:
+      print(str(e))
+      return make_response(jsonify({'result':'Failed!'}), 500)
+   
 if __name__ == '__main__':
    app.run(debug=True)
    

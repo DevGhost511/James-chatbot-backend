@@ -13,6 +13,8 @@ class User(db.Model):
     password = db.Column(db.String(), unique = True, nullable = False)
     created_at = db.Column(db.DateTime, nullable = False,  default=datetime.utcnow)
     role = db.Column(db.String(), default="owner") 
+    shared = db.Column(db.Integer, nullable=False, default=0)
+    history_id = db.Column(db.String(), nullable=True)
 
     __table_args__ = (
         db.CheckConstraint(role.in_(['owner', 'member', 'user']), name='role_types'),      
@@ -142,7 +144,7 @@ class ChatHistory(db.Model):
     user_query = db.Column(db.String(), nullable = False)
     response = db.Column(db.String(), nullable = False)
     created_at = db.Column(db.DateTime, nullable = False,  default=datetime.utcnow)
-
+    
     def __init__(self, user_id, user_query, response):
         self.user_id = user_id
         self.user_query = user_query
@@ -160,25 +162,24 @@ class ChatHistory(db.Model):
     def __repr__(self):
         return f"<ChatHistory {self.id}>"
 
-
 class InheritChat(db.Model):
     __tablename__ = 'inherit_chat'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement = True)
-    user_id = db.Column(db.Integer, nullable = False)
-    inherit_user = db.Column(db.Integer, nullable = False)
-    count = db.Column(db.Integer, nullable = False)
+    history_id = db.Column(db.String(), nullable=False)
+    user_query = db.Column(db.String(), nullable = False)
+    response = db.Column(db.String(), nullable = False)
     created_at = db.Column(db.DateTime, nullable = False,  default=datetime.utcnow)
 
-    def __init__(self, user_id, inherit_user, count):
-        self.user_id = user_id
-        self.inherit_user = inherit_user
-        self.count = count
+    def __init__(self, history_id, user_query, response):
+        self.history_id = history_id
+        self.user_query = user_query
+        self.response = response
 
     def json(self):
-        return {'id':self.id, 'user_id':self.user_id, 'inherit_user':self.inherit_user, 'count':self.count}
+        return {'id':self.id, 'history_id':self.history_id, 'user_id':self.user_query, 'response':self.response, 'count':self.count}
     
     def __repr__(self):
         return f"<InheritChat {self.id}>"   
 
-    
+

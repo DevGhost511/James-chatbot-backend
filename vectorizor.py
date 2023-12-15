@@ -8,7 +8,7 @@ from langchain.utilities import SQLDatabase
 from langchain.prompts import PromptTemplate
 from langchain.chat_models import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
-from langchain.llms import OpenAI
+from langchain.llms.openai import OpenAI
 from langchain.agents.agent_types import AgentType
 from langchain_experimental.sql import SQLDatabaseChain
 from langchain.embeddings.openai import OpenAIEmbeddings
@@ -88,7 +88,7 @@ def generate_answer(query, template, user_id, knowledge_name, latest_records):
     )
 
     docs = docsearch.similarity_search(query, k=8, filter={'assistant': '1'})
-    print(docs)
+    # print(docs)
     chat_openai = ChatOpenAI(temperature = 0.7, model = "gpt-4", openai_api_key = OPENAI_API_KEY)
 
     chain = load_qa_chain(chat_openai, chain_type="stuff", prompt=prompt, memory=memory)
@@ -186,15 +186,21 @@ def create_and_index_embeddings(text_chunks, metalist):
 def query_with_dolt(query):
     # sql_db = SQLDatabase.from_dbapi(db)
     db = SQLDatabase.from_uri(f"mysql+mysqldb://{DOLT_USERNAME}:{DOLT_PASSWORD}@{DOLT_HOST}/{DOLT_DATABASE}?ssl=1")
-    tookkit = SQLDatabaseToolkit(db=db, llm=OpenAI(temperature=0))
+    tookkit = SQLDatabaseToolkit(db=db, llm=OpenAI(temperature=0.7))
     agent_executor = create_sql_agent(
-        llm=OpenAI(temperature=0),
+        llm=OpenAI(temperature=0.7),
         toolkit=tookkit,
         verbose=True,
         agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
     )
-
-    res = agent_executor.run(query)
+    prompt = """Generate the human-like answer with talkative sentence based on the SQL database.
+    Assume our address to base calculations is: 
+    851 N Venetian Dr, Miami Beach, FL 33139 
+    Latitude: 25.882529
+    Longitude: -80.131493Always include at the end a hyperlink to the address with a google maps link backing to it
+    Also list how far from your location it is.
+    Occasionally use emojis when possible like for a map pin drop and medical related and have a helpful personality."""
+    res = agent_executor.run(prompt+query)
     # print(res)
     return res
 
