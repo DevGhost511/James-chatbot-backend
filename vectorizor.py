@@ -2,14 +2,21 @@
 import openai
 import pinecone
 from uuid import uuid4
+import pymysql
 from langchain.vectorstores import Pinecone
+from langchain.utilities import SQLDatabase
 from langchain.prompts import PromptTemplate
 from langchain.chat_models import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
+from langchain.llms import OpenAI
+from langchain.agents.agent_types import AgentType
+from langchain_experimental.sql import SQLDatabaseChain
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.chains.question_answering import load_qa_chain
-
-
+import mysql.connector
+from langchain.agents import create_sql_agent
+from langchain.agents.agent_toolkits import SQLDatabaseToolkit
+from langchain.llms.openai import OpenAI
 # from langchain import LargeLanguageModel
 import os
 from dotenv import load_dotenv
@@ -24,6 +31,19 @@ INDEX_NAME = os.getenv("INDEX_NAME")
 PINECONE_ENVIRONMENT = os.getenv("PINECONE_ENVIRONMENT")
 PINECONE_INDEX_DIMENSION = os.getenv("PINECONE_INDEX_DIMENSION")
 PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME")
+DOLT_HOST = os.getenv("DOLT_HOST")
+DOLT_PORT = os.getenv("DOLT_PORT")
+DOLT_USERNAME = os.getenv("DOLT_USERNAME")
+DOLT_PASSWORD = os.getenv("DOLT_PASSWORD")
+DOLT_DATABASE = os.getenv("DOLT_DATABASE")
+
+db = mysql.connector.connect(
+    host = DOLT_HOST,
+    user = DOLT_USERNAME,
+    password = DOLT_PASSWORD,
+    database = DOLT_DATABASE
+)
+
 print(PINECONE_INDEX_NAME)
 openai.api_key = OPENAI_API_KEY
 # Prepare pinecone
@@ -163,7 +183,20 @@ def create_and_index_embeddings(text_chunks, metalist):
         print(e)
     return chatgpt_index
 
+def query_with_dolt(query):
+    # sql_db = SQLDatabase.from_dbapi(db)
+    db = SQLDatabase.from_uri(f"mysql+mysqldb://{DOLT_USERNAME}:{DOLT_PASSWORD}@{DOLT_HOST}/{DOLT_DATABASE}?ssl=1")
+    tookkit = SQLDatabaseToolkit(db=db, llm=OpenAI(temperature=0))
+    agent_executor = create_sql_agent(
+        llm=OpenAI(temperature=0),
+        toolkit=tookkit,
+        verbose=True,
+        agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+    )
 
+    res = agent_executor.run(query)
+    # print(res)
+    return res
 
 
 

@@ -49,13 +49,15 @@ class PrePrompt(db.Model):
     title = db.Column(db.String(), unique = True, nullable = False)
     prompt = db.Column(db.String(), nullable = False)
     created_at = db.Column(db.DateTime, nullable = False,  default=datetime.utcnow)
+    assistant_id = db.Column(db.Integer)
 
-    def __init__(self, title, prompt):
+    def __init__(self, assistant_id, title, prompt):
+        self.assistant_id = assistant_id
         self.title = title        
         self.prompt = prompt      
     
     def json(self):
-        return {'id':self.id, 'title':self.title, 'prompt':self.prompt, 'created_at':self.created_at}
+        return {'id':self.id,'assistant_id':self.assistant_id, 'title':self.title, 'prompt':self.prompt, 'created_at':self.created_at}
     
     def __repr__(self):
         return f"<PrePrompt {self.title}>"
@@ -66,13 +68,14 @@ class CloserPrompt(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement = True)
     prompt = db.Column(db.String(), nullable = False)
     created_at = db.Column(db.DateTime, nullable = False,  default=datetime.utcnow)
+    assistant_id = db.Column(db.Integer)
 
-
-    def __init__(self, prompt):
+    def __init__(self, assistant_id, prompt):
+        self.assistant_id = assistant_id
         self.prompt = prompt  
 
     def json(self):
-        return {'id':self.id, 'prompt':self.prompt, 'created_at':self.created_at}
+        return {'id':self.id, 'assistant_id':self.assistant_id, 'prompt':self.prompt, 'created_at':self.created_at}
     
     def __repr__(self):
         return f"<CloserPrompt {self.prompt}>"
@@ -83,12 +86,14 @@ class PushPrompt(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement = True)
     prompt = db.Column(db.String(), nullable = False)
     created_at = db.Column(db.DateTime, nullable = False,  default=datetime.utcnow)
+    assistant_id = db.Column(db.Integer)
 
-    def __init__(self, prompt):
+    def __init__(self, assistant_id, prompt):
+        self.assistant_id = assistant_id
         self.prompt = prompt    
 
     def json(self):
-        return {'id':self.id, 'prompt':self.prompt, 'created_at':self.created_at}
+        return {'id':self.id, 'assistant_id':self.assistant_id, 'prompt':self.prompt, 'created_at':self.created_at}
     
     def __repr__(self):
         return f"<PushPrompt {self.prompt}>"
@@ -154,8 +159,26 @@ class ChatHistory(db.Model):
     
     def __repr__(self):
         return f"<ChatHistory {self.id}>"
-    
 
+
+class InheritChat(db.Model):
+    __tablename__ = 'inherit_chat'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement = True)
+    user_id = db.Column(db.Integer, nullable = False)
+    inherit_user = db.Column(db.Integer, nullable = False)
+    count = db.Column(db.Integer, nullable = False)
+    created_at = db.Column(db.DateTime, nullable = False,  default=datetime.utcnow)
+
+    def __init__(self, user_id, inherit_user, count):
+        self.user_id = user_id
+        self.inherit_user = inherit_user
+        self.count = count
+
+    def json(self):
+        return {'id':self.id, 'user_id':self.user_id, 'inherit_user':self.inherit_user, 'count':self.count}
     
+    def __repr__(self):
+        return f"<InheritChat {self.id}>"   
 
     
