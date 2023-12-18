@@ -89,21 +89,15 @@ def generate_kb_from_url(assistant_id, knowledge_id, url):
         print(str(e))
         return False
 
-def get_response(query, latest_records, user_id, assistatnt_id):
-    template = """Answer to the human input based on the context and chat history.\n
-    Assume our address to base calculations is: 851 N Venetian Dr, Miami Beach, FL 33139 
-    Latitude: 25.882529
-    Longitude: -80.131493
-    If someone asks generically for a price, you must give them the cheapest price for that CPT code.
-    Always include at the end a hyperlink to the address with a google maps link backing to it
-    Also list how far from your location it is.
-    occasionally use emojis when possible like for a map pin drop and medical related and have a helpful personality.
-    The response mush be less than 100 - 150 words.
+def get_response(query, prompt, latest_records, assistatnt_id):
+    
+    end = """
     Context:{context}
     Chat history:{chat_history}
     Human: {human_input}
     Assistant:"""
-    answer = generate_answer(query=query, user_id = user_id, knowledge_name=assistatnt_id, latest_records=latest_records, template=template)
+    template = prompt + end
+    answer = generate_answer(query=query, assistatnt_id=assistatnt_id, latest_records=latest_records, template=template)
     
     return answer
 

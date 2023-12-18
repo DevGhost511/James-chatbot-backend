@@ -5,6 +5,7 @@ from uuid import uuid4
 import pymysql
 from langchain.vectorstores import Pinecone
 from langchain.utilities import SQLDatabase
+from langchain.prompts.chat import ChatPromptTemplate
 from langchain.prompts import PromptTemplate
 from langchain.chat_models import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
@@ -73,7 +74,7 @@ def simple_generate(query):
     return response.choices[0].message.content
 
 # Generate the answer 
-def generate_answer(query, template, user_id, knowledge_name, latest_records):
+def generate_answer(query, assistant_id, template, latest_records):
     prompt = PromptTemplate(
         input_variables=["chat_history", "human_input", "context"],
         template=template
@@ -87,7 +88,7 @@ def generate_answer(query, template, user_id, knowledge_name, latest_records):
         index_name=PINECONE_INDEX_NAME, embedding= embeddings
     )
 
-    docs = docsearch.similarity_search(query, k=8, filter={'assistant': '1'})
+    docs = docsearch.similarity_search(query, k=8, filter={'assistant': (assistant_id)})
     # print(docs)
     chat_openai = ChatOpenAI(temperature = 0.7, model = "gpt-4", openai_api_key = OPENAI_API_KEY)
 
@@ -183,24 +184,26 @@ def create_and_index_embeddings(text_chunks, metalist):
         print(e)
     return chatgpt_index
 
-def query_with_dolt(query):
+def query_with_dolt(query, prompt):
     # sql_db = SQLDatabase.from_dbapi(db)
+    final_prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system",
+             prompt
+            ),
+            ("user", "{question}\n ai: "),
+        ]
+    )
     db = SQLDatabase.from_uri(f"mysql+mysqldb://{DOLT_USERNAME}:{DOLT_PASSWORD}@{DOLT_HOST}/{DOLT_DATABASE}?ssl=1")
-    tookkit = SQLDatabaseToolkit(db=db, llm=OpenAI(temperature=0.7))
+    tookkit = SQLDatabaseToolkit(db=db, llm=OpenAI(object='chat.completion', temperature=0.7, model='gpt-4-1106-preview', max_tokens=6000))
     agent_executor = create_sql_agent(
         llm=OpenAI(temperature=0.7),
         toolkit=tookkit,
         verbose=True,
         agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
     )
-    prompt = """Generate the human-like answer with talkative sentence based on the SQL database.
-    Assume our address to base calculations is: 
-    851 N Venetian Dr, Miami Beach, FL 33139 
-    Latitude: 25.882529
-    Longitude: -80.131493Always include at the end a hyperlink to the address with a google maps link backing to it
-    Also list how far from your location it is.
-    Occasionally use emojis when possible like for a map pin drop and medical related and have a helpful personality."""
-    res = agent_executor.run(prompt+query)
+    
+    res = agent_executor.run(final_prompt.format(question=query))
     # print(res)
     return res
 

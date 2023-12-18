@@ -9,40 +9,29 @@ class User(db.Model):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True, nullable = False, autoincrement = True)
-    username = db.Column(db.String(), unique = True, nullable = False)
-    password = db.Column(db.String(), unique = True, nullable = False)
+    user_id = db.Column(db.String(), unique = True, nullable = False)
     created_at = db.Column(db.DateTime, nullable = False,  default=datetime.utcnow)
-    role = db.Column(db.String(), default="owner") 
-    shared = db.Column(db.Integer, nullable=False, default=0)
-    history_id = db.Column(db.String(), nullable=True)
-
-    __table_args__ = (
-        db.CheckConstraint(role.in_(['owner', 'member', 'user']), name='role_types'),      
-    )
-
-    def __init__(self, username, password, created_at, role):
-        self.username = username        
-        self.password = password        
-        self.created_at = created_at        
-        self.role = role
+    
+    def __init__(self, user_id):
+        self.user_id = user_id
     
     def register_user_if_not_exist(self):        
-        db_user = User.query.filter(User.username == self.username).all()
+        db_user = User.query.filter(User.user_id == self.user_id).all()
         if not db_user:
             db.session.add(self)
             db.session.commit()
         
         return True
     
-    def get_by_username(username):        
-        db_user = User.query.filter(User.username == username).first()
+    def get_by_username(user_id):        
+        db_user = User.query.filter(User.user_id == user_id).first()
         return db_user
     
     def json(self):
-        return {'id': self.id, 'username':self.username}
+        return {'id': self.id, 'user_id':self.user_id}
     
     def __repr__(self):
-        return f"<User {self.username}>"
+        return f"<User {self.user_id}>"
     
 class PrePrompt(db.Model):
     __tablename__ = 'preprompts'
@@ -125,13 +114,17 @@ class Assistant(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement = True)
     name = db.Column(db.String(), unique = True, nullable = False)
+    prompt = db.Column(db.String(), nullable = False)
+    use_sql = db.Column(db.Integer, nullable = False)
     created_at = db.Column(db.DateTime, nullable = False,  default=datetime.utcnow)
 
-    def __init__(self, name):
+    def __init__(self, name, prompt, use_sql):
         self.name = name
+        self.prompt = prompt
+        self.use_sql = use_sql
 
     def json(self):
-        return {'id':self.id, 'assistant_name':self.name, 'created_at':self.created_at}
+        return {'id':self.id, 'assistant_name':self.name, 'prompt':self.prompt, 'use_sql':self.use_sql, 'created_at':self.created_at}
     
     def __repr__(self):
         return f"<Assistant {self.name}>"
@@ -140,7 +133,7 @@ class ChatHistory(db.Model):
     __tablename__ = 'chat_history'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement = True)
-    user_id = db.Column(db.Integer, nullable = False)
+    user_id = db.Column(db.String(), nullable = False)
     user_query = db.Column(db.String(), nullable = False)
     response = db.Column(db.String(), nullable = False)
     created_at = db.Column(db.DateTime, nullable = False,  default=datetime.utcnow)
@@ -152,12 +145,6 @@ class ChatHistory(db.Model):
 
     def json(self):
         return {'id':self.id, 'user_id':self.user_id, 'user_query':self.user_query, 'response':self.response}
-    
-    def pre_json(self):
-        return [
-            {'id':self.id, 'user_id':self.user_id, 'sender':'you', 'message':self.user_query},
-            {'id':self.id, 'user_id':self.id, 'sender':'bot', 'message':self.response}
-        ]
     
     def __repr__(self):
         return f"<ChatHistory {self.id}>"

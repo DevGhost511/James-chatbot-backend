@@ -23,16 +23,12 @@ CORS(app)
 
 @app.route("/")
 def index():
-   # db.create_all()
+   db.create_all()
    # del_all_records()
    # print('Deleted')
    return "This is APIs for CustomGPT!"
-
-# Response to the query
-@app.route('/user_query', methods=['POST'])
-def query():
+def query_from_sql(data):
    try:
-      data = request.get_json()
       print(data)
       query = data['query']
       if 'user_id' in data:
@@ -43,11 +39,20 @@ def query():
          assistant_id = data['assistant_id']
       else :
          assistant_id = 1
-      chat_history = ChatHistory.query.order_by(desc(ChatHistory.created_at)).limit(6).all()
+      if user_id == '': # New user
+         user_id = str(uuid.uuid4())
+         user = User(user_id=user_id)
+         db.session.add(user)
+         db.session.commit()
+      
+      prompt = Assistant.query.filter_by(assistant_id=assistant_id).first().prompt
+      print(f"Prompt of Assistant >>> {prompt}")
+      # Get 3 recent chat history
+      chat_history = ChatHistory.query.order_by(desc(ChatHistory.created_at)).limit(3).all()
       latest_records = [chat.json() for chat in chat_history]
       # print(latest_records)
       # return latest_records
-      response = get_response(query, latest_records, user_id, assistant_id)
+      response = get_response(query, prompt, latest_records, user_id, assistant_id)
       closer_prompt = CloserPrompt.query.order_by(func.random()).first()
       
       pre_prompts= simple_generate(query)
@@ -64,6 +69,100 @@ def query():
       print(str(e))
       response = 'Busy network. Try again later'
       return make_response(jsonify({'response':response}), 201)
+
+# Response to the query
+@app.route('/user_query1', methods=['POST'])
+def query():
+   try:
+      data = request.get_json()
+      print(data)
+      query = data['query']
+      if 'user_id' in data:
+         user_id = data['user_id']
+      else:
+         user_id = 1
+      if 'assistant_id' in data:
+         assistant_id = data['assistant_id']
+      else :
+         assistant_id = 1
+      prompt = Assistant.query.filter_by(user_id=user_id).first().prompt
+
+      chat_history = ChatHistory.query.order_by(desc(ChatHistory.created_at)).limit(6).all()
+      latest_records = [chat.json() for chat in chat_history]
+      # print(latest_records)
+      # return latest_records
+      response = get_response(query, prompt, latest_records, user_id, assistant_id)
+      closer_prompt = CloserPrompt.query.order_by(func.random()).first()
+      
+      pre_prompts= simple_generate(query)
+      pre_prompts = pre_prompts.replace('1. ', '').replace('2. ', '').replace('3. ', '').replace('. ', '.').replace('"','')
+      pre_prompts = pre_prompts.split('\n')
+      new_chat = ChatHistory(user_id=user_id, user_query=query, response=response)
+      #  Save messages to database  
+      db.session.add(new_chat)
+      db.session.commit()
+      # print(response)
+      return make_response(jsonify({'response':response, 'closer':closer_prompt.prompt, 'pre_prompts':pre_prompts, 'chat_id':new_chat.id}), 201)
+
+   except Exception as e:
+      print(str(e))
+      response = 'Busy network. Try again later'
+      return make_response(jsonify({'response':response}), 201)
+
+# Response from dolt
+@app.route('/user_query', methods=['POST'])
+def query_from_dolt():
+   try:
+      data = request.get_json()
+      query = data['query']
+      if 'user_id' in data:
+         user_id = data['user_id']
+      else:
+         user_id = 1
+      if 'assistant_id' in data:
+         assistant_id = data['assistant_id']
+      else :
+         assistant_id = 1
+      if user_id == '': # New user
+         user_id = str(uuid.uuid4())
+         user = User(user_id=user_id)
+         db.session.add(user)
+         db.session.commit()
+      print(data)
+      assistant = Assistant.query.filter_by(id = assistant_id).first()
+      use_sql = assistant.use_sql
+      prompt = assistant.prompt
+
+      chat_history = ChatHistory.query.filter_by(user_id=user_id).order_by(desc(ChatHistory.created_at)).limit(6).all()
+      latest_records = [chat.json() for chat in chat_history]
+      if use_sql == 1:
+         response = query_with_dolt(query, prompt)
+      else :
+         response = get_response(query=query, prompt=prompt, latest_records=latest_records, assistant_id=assistant_id)
+      closer_prompt = CloserPrompt.query.order_by(func.random()).first()
+         
+      pre_prompts= simple_generate(query)
+      pre_prompts = pre_prompts.replace('1. ', '').replace('2. ', '').replace('3. ', '').replace('. ', '.').replace('"','')
+      pre_prompts = pre_prompts.split('\n')
+      new_chat = ChatHistory(user_id=user_id, user_query=query, response=response)
+      db.session.add(new_chat)
+      db.session.commit()
+      # print(response)
+      return make_response(jsonify({'response':response, 'closer':closer_prompt.prompt, 'pre_prompts':pre_prompts, 'chat_id':new_chat.user_id}), 201)
+      
+   except TypeError as e:
+      print(str(e))
+      response = 'Bad structure of database!'
+      return make_response(jsonify({'response':response}), 201)
+   except ValueError as e:
+      print(str(e))
+      response = 'Invalid value'
+      return make_response(jsonify({'response':response}), 201)
+   except Exception as e:
+      print(str(e))
+      response = 'Token limit'
+      return make_response(jsonify({'response':response}), 201)
+
 
 # Delete message 
 @app.route('/del_message', methods = ['POST'])
@@ -376,10 +475,11 @@ def delete_knowledge():
 def add_assistant():
    data = request.get_json()
    assistant_name = data['assistant_name']
-   
+   prompt = data['prompt']
+   use_sql = data['use_sql']
    with app.app_context():
       try:
-         new_assistant = Assistant(name=assistant_name)
+         new_assistant = Assistant(name=assistant_name, prompt=prompt, use_sql=use_sql)
          db.session.add(new_assistant)
          db.session.commit()
          print('Successfully saved assistant')
@@ -421,14 +521,19 @@ def update_assistant():
    try:
       data = request.get_json()
       id = data['id'] 
+      prompt = data['prompt']
       assistant_name = data['assistant_name']
+      use_sql = data['use_sql']
       assistant = Assistant.query.filter_by(id=id).first()
       if assistant:
          assistant.name = assistant_name
+         assistant.prompt = prompt
+         assistant.use_sql = use_sql
          db.session.commit()
          return make_response(jsonify(assistant.json()), 201)
       return make_response(jsonify({'result':'Not found'}), 201)
-   except:
+   except Exception as e:
+      print(str(e))
       return make_response(jsonify({'result':'Failed'}), 500)
 
 # Get the first 3 random pre-prompts
@@ -446,15 +551,7 @@ def get_initial_prompts():
 
    return make_response(jsonify({'result':'None'}))
 
-# Response from dolt
-@app.route('/query_from_dolt', methods=['POST'])
-def query_from_dolt():
-   data = request.get_json()
-   query = data ['query']
-   res = query_with_dolt(query)
-   return res
-
-# Share the link
+# Share the link[]
 @app.route('/share_chat', methods = ['POST'])
 def share_chat():
    try:
