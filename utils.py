@@ -22,7 +22,7 @@ def generate_query(user_id, knowledge_name, chat_history, user_query):
 
     return answer
     
-def generate_kb_from_xlsx(assistant_id, knowledge_id, path):
+def generate_kb_from_xlsx(assistant_id, knowledge_id, path, api_key, environment, index_name):
     excel = xl.load_workbook(path)
     sheetnames = excel.sheetnames
     res = {}
@@ -37,19 +37,19 @@ def generate_kb_from_xlsx(assistant_id, knowledge_id, path):
     for c in enumerate(chunks):
         metalist.append(metadic)
 
-    store_embeddings_in_pinecone(chunks, metalist)
+    store_embeddings_in_pinecone(chunks, metalist, api_key, environment, index_name)
     return res
 
-def generate_kb_from_file(assistant_id, knowledge_id, path):
+def generate_kb_from_file(assistant_id, knowledge_id, path, api_key, environment, index_name):
     try:
         extension = path.split('.')[-1]
         extension = extension.lower()
         if extension == 'txt':
-            generate_kb_from_txt(assistant_id=assistant_id, knowledge_name=knowledge_id, path=path)
+            generate_kb_from_txt(assistant_id=assistant_id, knowledge_name=knowledge_id, path=path, api_key=api_key, environment=environment, index_name=index_name)
             os.remove(path)
             return True
         if extension == 'xlsx' or extension == 'xls':
-            generate_kb_from_xlsx(assistant_id, knowledge_id, path)
+            generate_kb_from_xlsx(assistant_id, knowledge_id, path, api_key=api_key, environment=environment, index_name=index_name)
             os.remove(path)
             return True
         return False
@@ -57,7 +57,7 @@ def generate_kb_from_file(assistant_id, knowledge_id, path):
         print(str(e))
         return False
 
-def generate_kb_from_txt(assistant_id, knowledge_name, path):
+def generate_kb_from_txt(assistant_id, knowledge_name, path, api_key, environment, index_name):
     try:
         with open(path, encoding='utf8') as f:
             content = f.read()
@@ -67,13 +67,13 @@ def generate_kb_from_txt(assistant_id, knowledge_name, path):
         for c in enumerate(chunks):
             metalist.append(metadic)
 
-        store_embeddings_in_pinecone(chunks, metalist)
+        store_embeddings_in_pinecone(chunks, metalist, api_key, environment, index_name)
         return True
     except Exception as e:
         print(str(e))
         return False
 
-def generate_kb_from_url(assistant_id, knowledge_id, url):
+def generate_kb_from_url(assistant_id, knowledge_id, url, api_key, environment, index_name):
     try:
         chunks = get_chunks(url)
         if chunks is False:
@@ -83,13 +83,13 @@ def generate_kb_from_url(assistant_id, knowledge_id, url):
         metalist = []
         for c in enumerate(chunks):
             metalist.append(metadic)
-        store_embeddings_in_pinecone(chunks, metalist)
+        store_embeddings_in_pinecone(chunks, metalist, api_key, environment, index_name)
         return True
     except Exception as e:
         print(str(e))
         return False
 
-def get_response(query, prompt, latest_records, assistatnt_id):
+def get_response(query, prompt, latest_records, assistant_id):
     
     end = """
     Context:{context}
@@ -97,7 +97,7 @@ def get_response(query, prompt, latest_records, assistatnt_id):
     Human: {human_input}
     Assistant:"""
     template = prompt + end
-    answer = generate_answer(query=query, assistatnt_id=assistatnt_id, latest_records=latest_records, template=template)
+    answer = generate_answer(query=query, assistant_id=assistant_id, latest_records=latest_records, template=template)
     
     return answer
 

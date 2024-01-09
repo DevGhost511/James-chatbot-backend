@@ -9,29 +9,50 @@ class User(db.Model):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True, nullable = False, autoincrement = True)
-    user_id = db.Column(db.String(), unique = True, nullable = False)
+    chat_id = db.Column(db.String(), nullable = True)
+    name = db.Column(db.String(), nullable = False)
+    email = db.Column(db.String(), unique = True, nullable = False)
+    password = db.Column(db.String(), nullable = True)
+    role = db.Column(db.String(), nullable = False, default = 'user')
     created_at = db.Column(db.DateTime, nullable = False,  default=datetime.utcnow)
     
-    def __init__(self, user_id):
-        self.user_id = user_id
+    def __init__(self, name, email, password):
+        self.name = name
+        self.email = email
+        self.password = password
     
     def register_user_if_not_exist(self):        
         db_user = User.query.filter(User.user_id == self.user_id).all()
         if not db_user:
             db.session.add(self)
             db.session.commit()
-        
         return True
     
-    def get_by_username(user_id):        
-        db_user = User.query.filter(User.user_id == user_id).first()
+    def get_by_username(name):        
+        db_user = User.query.filter(User.name == name).first()
         return db_user
     
     def json(self):
-        return {'id': self.id, 'user_id':self.user_id}
+        return {'id': self.id, 'name':self.name}
     
     def __repr__(self):
-        return f"<User {self.user_id}>"
+        return f"<User {self.name}>"
+
+class ChatId(db.Model):
+    __tablename__ = 'chat_ids'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement = True)
+    chat_id = db.Column(db.String(), unique = True,  nullable = True)
+    created_at = db.Column(db.DateTime, nullable = False,  default=datetime.utcnow)
+
+    def __init__(self, chat_id):
+        self.chat_id = chat_id  
+    
+    def json(self):
+        return {'id':self.id, 'chat_id': self.chat_id, 'created_at':self.created_at}
+    
+    def __repr__(self):
+        return f"<ChatId {self.chat_id}>"
     
 class PrePrompt(db.Model):
     __tablename__ = 'preprompts'
@@ -115,16 +136,41 @@ class Assistant(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement = True)
     name = db.Column(db.String(), unique = True, nullable = False)
     prompt = db.Column(db.String(), nullable = False)
-    use_sql = db.Column(db.Integer, nullable = False)
+    use_sql = db.Column(db.Boolean, nullable = False)
+    use_pinecone = db.Column(db.Boolean, nullable = False)
+    use_serp = db.Column(db.Boolean, nullable = False)
+    sql_host = db.Column(db.String(), nullable = True)
+    sql_username = db.Column(db.String(), nullable = True)
+    sql_password = db.Column(db.String(), nullable = True)
+    sql_db_name = db.Column(db.String(), nullable = True)
+    sql_port = db.Column(db.String(), nullable = True)
+    pinecone_api_key =db.Column(db.String(), nullable = True)
+    pinecone_environment = db.Column(db.String(), nullable = True)
+    pinecone_index_name = db.Column(db.String(), nullable = True)
     created_at = db.Column(db.DateTime, nullable = False,  default=datetime.utcnow)
 
-    def __init__(self, name, prompt, use_sql):
+    def __init__(self, name, prompt, use_serp, use_sql, use_pinecone, sql_host, sql_username, sql_password, sql_port, sql_db_name, pinecone_api_key, pinecone_environment, pinecone_index_name):
         self.name = name
         self.prompt = prompt
         self.use_sql = use_sql
+        self.use_pinecone = use_pinecone
+        self.use_serp = use_serp
+        self.sql_host = sql_host
+        self.sql_username = sql_username
+        self.sql_password = sql_password
+        self.sql_db_name = sql_db_name
+        self.sql_port = sql_port
+        self.pinecone_api_key = pinecone_api_key
+        self.pinecone_environment = pinecone_environment
+        self.pinecone_index_name = pinecone_index_name
+        
 
     def json(self):
-        return {'id':self.id, 'assistant_name':self.name, 'prompt':self.prompt, 'use_sql':self.use_sql, 'created_at':self.created_at}
+        return {'id':self.id, 'assistant_name':self.name, 'prompt':self.prompt, 
+                'use_sql':self.use_sql,'sql_host':self.sql_host, 'sql_username':self.sql_username, 'sql_password':self.sql_password, 'sql_port':self.sql_port, 'sql_db_name':self.sql_db_name,
+                'use_pinecone':self.use_pinecone, 'pinecone_api_key':self.pinecone_api_key, 'pinecone_environment':self.pinecone_environment, 'pinecone_index_name':self.pinecone_index_name,
+                'use_serp':self.use_serp,
+                'created_at':self.created_at}
     
     def __repr__(self):
         return f"<Assistant {self.name}>"
@@ -133,18 +179,18 @@ class ChatHistory(db.Model):
     __tablename__ = 'chat_history'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement = True)
-    user_id = db.Column(db.String(), nullable = False)
+    chat_id = db.Column(db.String(), nullable = False)
     user_query = db.Column(db.String(), nullable = False)
     response = db.Column(db.String(), nullable = False)
     created_at = db.Column(db.DateTime, nullable = False,  default=datetime.utcnow)
     
-    def __init__(self, user_id, user_query, response):
-        self.user_id = user_id
+    def __init__(self, chat_id, user_query, response):
+        self.chat_id = chat_id
         self.user_query = user_query
         self.response = response
 
     def json(self):
-        return {'id':self.id, 'user_id':self.user_id, 'user_query':self.user_query, 'response':self.response}
+        return {'id':self.id, 'chat_id':self.chat_id, 'user_query':self.user_query, 'response':self.response}
     
     def __repr__(self):
         return f"<ChatHistory {self.id}>"

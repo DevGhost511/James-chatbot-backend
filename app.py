@@ -1,5 +1,6 @@
 import os
 import uuid
+import time
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify, make_response
 from sqlalchemy import func, desc
@@ -7,8 +8,8 @@ from flask_cors import CORS
 from flask_migrate import Migrate
 from werkzeug.utils import secure_filename
 from utils import generate_kb_from_file, generate_kb_from_url, get_response
-from models import db, User, PushPrompt, PrePrompt, CloserPrompt, KnowledgeBase, Assistant, ChatHistory, InheritChat
-from vectorizor import del_knowledge_by_knowledge_id, del_knowledgebase_by_assistant_id, del_all_records, simple_generate, query_with_dolt
+from models import db, ChatId, User, PushPrompt, PrePrompt, CloserPrompt, KnowledgeBase, Assistant, ChatHistory, InheritChat
+from vectorizor import generate_final_answer,pinecone_result, sql_result, serp_result, simple_generate, del_knowledge_by_knowledge_id, del_knowledgebase_by_assistant_id, del_all_records, preprompt_generate, query_with_dolt, sql_connect, pinecone_connect, query_with_both
 
 app = Flask(__name__)
 # app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
@@ -27,9 +28,139 @@ def index():
    # del_all_records()
    # print('Deleted')
    return "This is APIs for CustomGPT!"
+
+# User register
+@app.route('/register', methods =['POST'])
+def register():
+   try:
+      data = request.get_json()
+      print(data)
+      name = data['name']
+      email = data['email']
+      password = data['password']
+      new_user = User(name=name, email=email, password=password)
+      db.session.add(new_user)
+      db.session.commit()
+      return make_response(jsonify({'result':new_user.id}), 201)
+   except Exception as e:
+      print(str(e))
+      return make_response(jsonify({'result':'User already exists'}), 409)
+
+#  User log in
+@app.route('/login', methods=['POST'])
+def login():
+   try:
+      data = request.get_json()
+      email = data['email']
+      password = data['password']
+      user = User.query.filter_by(email=email).first()
+      if user:
+         if user.password == password:
+            return make_response(jsonify({'result':user.id}), 200)
+         else:
+            return make_response(jsonify({'result':'Incorrect password'}), 400)
+      else:
+         return make_response(jsonify({'result':'User does not exist'}), 400)
+   except Exception as e:
+      print(str(e))
+      return make_response(jsonify({'result':'Error'}), 400)
+            
+#  Google auth
+@app.route('/google_auth', methods=['POST'])
+def google_auth():
+   try:
+      data = request.get_json()
+      email = data['email']
+      name = data['name']
+      if 'password' in data:
+         password = data['password']
+      else:
+         password = ''
+      user = User.query.filter_by(email=email).first()
+      if user:
+         return make_response(jsonify({'result':user.id}), 201)
+      new_user = User(email=email, name=name, password=password)
+      db.session.add(new_user)
+      db.session.commit()
+      return make_response(jsonify({'result':new_user.id}), 201)
+   except Exception as e:
+      print(str(e))
+      return make_response(jsonify({'result':'Error'}), 400)
+
+@app.route('/test_serp', methods=['POST'])
+def test_serp():
+   data = request.get_json()
+   query = data['query']
+   result = serp_result(query)
+   print('Result >>', result)
+   return make_response(jsonify({'result':result}))
+
+@app.route('/test_sql', methods =['POST'])
+def test_sql():
+   data = request.get_json()
+   assistant_id = data['assistant_id']
+   query = data['query']
+   result = sql_result(assistant_id=assistant_id, query=query)
+   print('Result >>>', result)
+   return make_response(jsonify({'result':result}))
+
+@app.route('/test_pinecone', methods =['POST'])
+def test_pinecone():
+   data = request.get_json()
+   assistant_id = data['assistant_id']
+   query = data['query']
+   result = pinecone_result(assistant_id=assistant_id, query=query)
+   print('Result >>>', result)
+   return make_response(jsonify({'result':result}))
+
+@app.route('/user_query', methods=['POST'])
+def test_final():
+   try:
+      start_time = time.time()
+      data = request.get_json()
+      query = data['query']
+      print(data)
+      chat_id = data['chat_id']
+      if 'assistant_id' in data:
+         assistant_id = data['assistant_id']
+      else :
+         assistant_id = 1
+      if chat_id == '': # New user
+         chat_id = str(uuid.uuid4())
+         print(chat_id)
+         chat = ChatId(chat_id=chat_id)
+         db.session.add(chat)
+         db.session.commit()
+      # Get 3 recent chat history
+      chat_history = ChatHistory.query.filter_by(chat_id=chat_id).order_by(desc(ChatHistory.created_at)).limit(3).all()
+      latest_records = [chat.json() for chat in chat_history]   
+      
+      response = generate_final_answer(assistant_id=assistant_id, query=query)
+
+      closer_prompt = CloserPrompt.query.order_by(func.random()).first()
+         
+      pre_prompts= preprompt_generate(query)
+      pre_prompts = pre_prompts.replace('1. ', '').replace('2. ', '').replace('3. ', '').replace('. ', '.').replace('"','')
+      pre_prompts = pre_prompts.split('\n')
+      new_chat = ChatHistory(chat_id=chat_id, user_query=query, response=response)
+      #  Save messages to database  
+      db.session.add(new_chat)
+      db.session.commit()
+      end_time = time.time()
+      print(response)
+      print(f"The query took {end_time-start_time} seconds")
+
+      return make_response(jsonify({'response':response, 'closer':closer_prompt.prompt, 'pre_prompts':pre_prompts, 'chat_id':new_chat.chat_id}), 201)
+
+   except Exception as e:
+      print(str(e))
+      response = 'Busy network. Try again later'
+      return make_response(jsonify({'response':response}), 201)
+
 def query_from_sql(data):
    try:
-      print(data)
+      start_time = time.time()
+      # print(data)
       query = data['query']
       if 'user_id' in data:
          user_id = data['user_id']
@@ -46,7 +177,7 @@ def query_from_sql(data):
          db.session.commit()
       
       prompt = Assistant.query.filter_by(assistant_id=assistant_id).first().prompt
-      print(f"Prompt of Assistant >>> {prompt}")
+      # print(f"Prompt of Assistant >>> {prompt}")
       # Get 3 recent chat history
       chat_history = ChatHistory.query.order_by(desc(ChatHistory.created_at)).limit(3).all()
       latest_records = [chat.json() for chat in chat_history]
@@ -55,14 +186,15 @@ def query_from_sql(data):
       response = get_response(query, prompt, latest_records, user_id, assistant_id)
       closer_prompt = CloserPrompt.query.order_by(func.random()).first()
       
-      pre_prompts= simple_generate(query)
+      pre_prompts= preprompt_generate(query)
       pre_prompts = pre_prompts.replace('1. ', '').replace('2. ', '').replace('3. ', '').replace('. ', '.').replace('"','')
       pre_prompts = pre_prompts.split('\n')
       new_chat = ChatHistory(user_id=user_id, user_query=query, response=response)
       #  Save messages to database  
       db.session.add(new_chat)
       db.session.commit()
-      # print(response)
+      end_time = time.time()
+      print(f"The query took {end_time-start_time} seconds")
       return make_response(jsonify({'response':response, 'closer':closer_prompt.prompt, 'pre_prompts':pre_prompts, 'chat_id':new_chat.id}), 201)
 
    except Exception as e:
@@ -94,7 +226,7 @@ def query():
       response = get_response(query, prompt, latest_records, user_id, assistant_id)
       closer_prompt = CloserPrompt.query.order_by(func.random()).first()
       
-      pre_prompts= simple_generate(query)
+      pre_prompts= preprompt_generate(query)
       pre_prompts = pre_prompts.replace('1. ', '').replace('2. ', '').replace('3. ', '').replace('. ', '.').replace('"','')
       pre_prompts = pre_prompts.split('\n')
       new_chat = ChatHistory(user_id=user_id, user_query=query, response=response)
@@ -110,11 +242,13 @@ def query():
       return make_response(jsonify({'response':response}), 201)
 
 # Response from dolt
-@app.route('/user_query', methods=['POST'])
+@app.route('/user_query2', methods=['POST'])
 def query_from_dolt():
    try:
+      start_time = time.time()
       data = request.get_json()
       query = data['query']
+      print(data)
       if 'user_id' in data:
          user_id = data['user_id']
       else:
@@ -128,26 +262,37 @@ def query_from_dolt():
          user = User(user_id=user_id)
          db.session.add(user)
          db.session.commit()
-      print(data)
+      print(user_id)
       assistant = Assistant.query.filter_by(id = assistant_id).first()
       use_sql = assistant.use_sql
+      use_pinecone = assistant.use_pinecone
       prompt = assistant.prompt
 
       chat_history = ChatHistory.query.filter_by(user_id=user_id).order_by(desc(ChatHistory.created_at)).limit(6).all()
       latest_records = [chat.json() for chat in chat_history]
-      if use_sql == 1:
-         response = query_with_dolt(query, prompt)
-      else :
+      if use_sql == 1 and use_pinecone == 0:
+         print('Only SQL>>>')
+         response = query_with_dolt(query, prompt, assistant_id)
+      if use_sql ==0 and use_pinecone == 1:
+         print('Only Pinecone>>>')
          response = get_response(query=query, prompt=prompt, latest_records=latest_records, assistant_id=assistant_id)
+      if use_sql ==0 and use_pinecone == 0:
+         print('Only None>>>')
+         response = simple_generate(query)
+      if use_sql == 1 and use_pinecone == 1:
+         response = query_with_both(query, prompt, assistant_id)
       closer_prompt = CloserPrompt.query.order_by(func.random()).first()
          
-      pre_prompts= simple_generate(query)
+      pre_prompts= preprompt_generate(query)
       pre_prompts = pre_prompts.replace('1. ', '').replace('2. ', '').replace('3. ', '').replace('. ', '.').replace('"','')
       pre_prompts = pre_prompts.split('\n')
+      
       new_chat = ChatHistory(user_id=user_id, user_query=query, response=response)
       db.session.add(new_chat)
       db.session.commit()
-      # print(response)
+      end_time = time.time()
+      print(f"The query took {end_time-start_time} seconds")
+      print(new_chat.user_id)
       return make_response(jsonify({'response':response, 'closer':closer_prompt.prompt, 'pre_prompts':pre_prompts, 'chat_id':new_chat.user_id}), 201)
       
    except TypeError as e:
@@ -183,19 +328,19 @@ def get_chats():
    try:
       data = request.get_json()
       print(data)
-      user_id = data['user_id']
+      chat_id = data['user_id']
       if 'hsitory_id' in data:
          history_id = data['history_id']
          print('From shared history...')
-         pre_chats = ChatHistory.query.filter_by(user_id=user_id).all()
+         pre_chats = ChatHistory.query.filter_by(chat_id=chat_id).all()
          db.session.delete(pre_chats)
          db.session.commit()
          shared_chats = InheritChat.query.filter_by(history_id=history_id).all()
          for chat in shared_chats:
-            new_chat = ChatHistory(user_id=user_id, user_query=chat.user_query, response=chat.response)
+            new_chat = ChatHistory(chat_id=chat_id, user_query=chat.user_query, response=chat.response)
             db.session.add(new_chat)
             db.session.commit()
-      chats = ChatHistory.query.filter_by(user_id=user_id).all()
+      chats = ChatHistory.query.filter_by(chat_id=chat_id).all()
       print('No shared')
       if chats:
          return make_response(jsonify([chat.json() for chat in chats]), 201)
@@ -395,6 +540,7 @@ def update_closer_prompt():
 def add_knowledge():
    if 'assistant_id' in request.form:
       assistant_id = request.form['assistant_id']
+      
       file = request.files.get('file')
       if file:
          try:
@@ -410,7 +556,12 @@ def add_knowledge():
             db.session.commit()
             print('Succesfully saved a file')
             # Save to pinecone
-            generate_kb_from_file(assistant_id, new_knowledge.id, save_path)
+            assistant = Assistant.query.filter_by(id=assistant_id).first()
+            pinecone_api_key = assistant.pinecone_api_key
+            pinecone_environment = assistant.pinecone_environment
+            pinecone_index_name = assistant.pinecone_index_name
+
+            generate_kb_from_file(assistant_id, new_knowledge.id, save_path, pinecone_api_key, pinecone_environment, pinecone_index_name)
             
             return make_response(jsonify(new_knowledge.json()), 201)
          except Exception as e:
@@ -458,12 +609,13 @@ def delete_knowledge():
       with app.app_context():
          data = request.get_json()
          id = data['id']
+         assistant_id = data['assistant_id']
          knowledge_base = KnowledgeBase.query.filter_by(id=id).first()
          if knowledge_base:
             db.session.delete(knowledge_base)
             db.session.commit()
             # Delete knowledge in pinecone
-            del_knowledge_by_knowledge_id(id)
+            del_knowledge_by_knowledge_id(id, assistant_id)
             return make_response(jsonify({'id':id}), 200)
          return make_response(jsonify({'message':'Not found!'}), 404)
    except Exception as e:
@@ -477,13 +629,36 @@ def add_assistant():
    assistant_name = data['assistant_name']
    prompt = data['prompt']
    use_sql = data['use_sql']
+   use_pinecone = data['use_pinecone']
+   use_serp = data['use_serp']
+   if use_sql:
+      sql_host = data['sql_host']
+      sql_username = data['sql_username']
+      sql_password = data['sql_password']
+      sql_db_name = data['sql_db_name']
+      sql_port = data['sql_port']
+   else:
+      sql_host = ''
+      sql_username = ''
+      sql_password = ''
+      sql_db_name = ''
+      sql_port = ''
+   if use_pinecone:
+      pinecone_api_key = data['pinecone_api_key']
+      pinecone_environment = data['pinecone_environment']
+      pinecone_index_name = data['pinecone_index_name']
+   else:
+      pinecone_api_key = ''
+      pinecone_environment = ''
+      pinecone_index_name = ''
+
    with app.app_context():
       try:
-         new_assistant = Assistant(name=assistant_name, prompt=prompt, use_sql=use_sql)
+         new_assistant = Assistant(name=assistant_name, prompt=prompt, use_sql=use_sql,use_pinecone=use_pinecone,use_serp=use_serp, sql_host=sql_host, sql_username=sql_username, sql_password=sql_password, sql_port=sql_port, sql_db_name=sql_db_name, pinecone_api_key=pinecone_api_key, pinecone_environment=pinecone_environment, pinecone_index_name=pinecone_index_name)
          db.session.add(new_assistant)
          db.session.commit()
          print('Successfully saved assistant')
-         return make_response(jsonify(new_assistant.json()))
+         return make_response(jsonify(new_assistant.json()),201)
       except Exception as e:
          print(str(e))
          return make_response(jsonify({'result':'Error saving'}))
@@ -524,11 +699,44 @@ def update_assistant():
       prompt = data['prompt']
       assistant_name = data['assistant_name']
       use_sql = data['use_sql']
+      use_serp = data['use_serp']
+      use_pinecone = data['use_pinecone']
+      if use_sql:
+         sql_host = data['sql_host']
+         sql_username = data['sql_username']
+         sql_password = data['sql_password']
+         sql_db_name = data['sql_db_name']
+         sql_port = data['sql_port']
+      else:
+         sql_host = ''
+         sql_username = ''
+         sql_password = ''
+         sql_db_name = ''
+         sql_port = ''
+      if use_pinecone:
+         pinecone_api_key = data['pinecone_api_key']
+         pinecone_environment = data['pinecone_environment']
+         pinecone_index_name = data['pinecone_index_name']
+      else:
+         pinecone_api_key = ''
+         pinecone_environment = ''
+         pinecone_index_name = ''
       assistant = Assistant.query.filter_by(id=id).first()
       if assistant:
          assistant.name = assistant_name
          assistant.prompt = prompt
          assistant.use_sql = use_sql
+         assistant.use_pinecone = use_pinecone
+         assistant.use_serp = use_serp
+         assistant.sql_host = sql_host
+         assistant.sql_username = sql_username
+         assistant.sql_password = sql_password
+         assistant.sql_db_name = sql_db_name
+         assistant.sql_port = sql_port
+         assistant.pinecone_api_key = pinecone_api_key
+         assistant.pinecone_environment = pinecone_environment
+         assistant.pinecone_index_name = pinecone_index_name
+
          db.session.commit()
          return make_response(jsonify(assistant.json()), 201)
       return make_response(jsonify({'result':'Not found'}), 201)
@@ -577,6 +785,45 @@ def share_chat():
       print(str(e))
       return make_response(jsonify({'result':'Failed!'}), 500)
    
+# Test SQL connection
+@app.route('/test_sql_connection', methods =['POST'])
+def test_sql_connection():
+   try:
+      data = request.get_json()
+      host = data['host']
+      username = data['username']
+      password = data['password']
+      db_name = data['db_name']
+      port = data['port']
+      db = sql_connect(host=host, username=username, port=port, password=password, db_name=db_name)
+      
+      if db:
+         db.close()
+         return make_response(jsonify({'result':True}), 200)
+      else:
+         return make_response(jsonify({'result':True}), 200)
+      
+   except Exception as e:
+      print(str(e))
+      return make_response(jsonify({'result':'Busy server. Try again later!'}), 500)
+
+# Test Pinecone connections
+@app.route('/test_pinecone_connection', methods = ['POST'])
+def test_pinecone_connection():
+   try:
+      data = request.get_json()
+      api_key = data['api_key']
+      environment = data['environment']
+      index_name = data['index_name']
+      res = pinecone_connect(api_key=api_key, environment=environment, index_name=index_name)
+      print(res.describe_index_stats())
+      if res:
+         return make_response(jsonify({'result':True}), 200)
+   except Exception as e:
+      print(str(e))
+      return make_response(jsonify({'result':False}), 200)
+
+
 if __name__ == '__main__':
    app.run(debug=True)
    
