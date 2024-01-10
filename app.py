@@ -631,6 +631,7 @@ def add_assistant():
    use_sql = data['use_sql']
    use_pinecone = data['use_pinecone']
    use_serp = data['use_serp']
+   facebook_enable = data['facebook_enable']
    if use_sql:
       sql_host = data['sql_host']
       sql_username = data['sql_username']
@@ -651,10 +652,14 @@ def add_assistant():
       pinecone_api_key = ''
       pinecone_environment = ''
       pinecone_index_name = ''
+   if facebook_enable:
+      facebook_token = data['facebook_token']
+   else:
+      facebook_token = ''
 
    with app.app_context():
       try:
-         new_assistant = Assistant(name=assistant_name, prompt=prompt, use_sql=use_sql,use_pinecone=use_pinecone,use_serp=use_serp, sql_host=sql_host, sql_username=sql_username, sql_password=sql_password, sql_port=sql_port, sql_db_name=sql_db_name, pinecone_api_key=pinecone_api_key, pinecone_environment=pinecone_environment, pinecone_index_name=pinecone_index_name)
+         new_assistant = Assistant(name=assistant_name, prompt=prompt, use_sql=use_sql,use_pinecone=use_pinecone,use_serp=use_serp, facebook_enable=facebook_enable, facebook_token=facebook_token, sql_host=sql_host, sql_username=sql_username, sql_password=sql_password, sql_port=sql_port, sql_db_name=sql_db_name, pinecone_api_key=pinecone_api_key, pinecone_environment=pinecone_environment, pinecone_index_name=pinecone_index_name)
          db.session.add(new_assistant)
          db.session.commit()
          print('Successfully saved assistant')
@@ -669,6 +674,7 @@ def get_assistant():
    with app.app_context():
       try:
          assistants = Assistant.query.all()
+         print(assistants)
          return make_response(jsonify([assistant.json() for assistant in assistants]))
       except Exception as e:
          print(str(e))
@@ -701,6 +707,8 @@ def update_assistant():
       use_sql = data['use_sql']
       use_serp = data['use_serp']
       use_pinecone = data['use_pinecone']
+      facebook_enable = data['facebook_enable']
+
       if use_sql:
          sql_host = data['sql_host']
          sql_username = data['sql_username']
@@ -721,6 +729,11 @@ def update_assistant():
          pinecone_api_key = ''
          pinecone_environment = ''
          pinecone_index_name = ''
+
+      if facebook_enable:
+         facebook_token = data['facebook_token']
+      else:
+         facebook_token = ''
       assistant = Assistant.query.filter_by(id=id).first()
       if assistant:
          assistant.name = assistant_name
@@ -736,6 +749,8 @@ def update_assistant():
          assistant.pinecone_api_key = pinecone_api_key
          assistant.pinecone_environment = pinecone_environment
          assistant.pinecone_index_name = pinecone_index_name
+         assistant.facebook_enable = facebook_enable
+         assistant.facebook_token = facebook_token
 
          db.session.commit()
          return make_response(jsonify(assistant.json()), 201)

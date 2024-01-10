@@ -139,6 +139,8 @@ class Assistant(db.Model):
     use_sql = db.Column(db.Boolean, nullable = False)
     use_pinecone = db.Column(db.Boolean, nullable = False)
     use_serp = db.Column(db.Boolean, nullable = False)
+    facebook_enable = db.Column(db.Boolean, nullable = False)
+    facebook_token = db.Column(db.String(), nullable = True)
     sql_host = db.Column(db.String(), nullable = True)
     sql_username = db.Column(db.String(), nullable = True)
     sql_password = db.Column(db.String(), nullable = True)
@@ -149,7 +151,7 @@ class Assistant(db.Model):
     pinecone_index_name = db.Column(db.String(), nullable = True)
     created_at = db.Column(db.DateTime, nullable = False,  default=datetime.utcnow)
 
-    def __init__(self, name, prompt, use_serp, use_sql, use_pinecone, sql_host, sql_username, sql_password, sql_port, sql_db_name, pinecone_api_key, pinecone_environment, pinecone_index_name):
+    def __init__(self, name, prompt, use_serp, use_sql, use_pinecone, sql_host, sql_username, sql_password, sql_port, sql_db_name, pinecone_api_key, pinecone_environment, pinecone_index_name, facebook_enable, facebook_token):
         self.name = name
         self.prompt = prompt
         self.use_sql = use_sql
@@ -163,13 +165,16 @@ class Assistant(db.Model):
         self.pinecone_api_key = pinecone_api_key
         self.pinecone_environment = pinecone_environment
         self.pinecone_index_name = pinecone_index_name
+        self.facebook_enable = facebook_enable
+        self.facebook_token = facebook_token
         
-
     def json(self):
         return {'id':self.id, 'assistant_name':self.name, 'prompt':self.prompt, 
                 'use_sql':self.use_sql,'sql_host':self.sql_host, 'sql_username':self.sql_username, 'sql_password':self.sql_password, 'sql_port':self.sql_port, 'sql_db_name':self.sql_db_name,
                 'use_pinecone':self.use_pinecone, 'pinecone_api_key':self.pinecone_api_key, 'pinecone_environment':self.pinecone_environment, 'pinecone_index_name':self.pinecone_index_name,
                 'use_serp':self.use_serp,
+                'facebook_enable':self.facebook_enable,
+                'facebook_token':self.facebook_token,
                 'created_at':self.created_at}
     
     def __repr__(self):
