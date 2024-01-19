@@ -9,7 +9,7 @@ from flask_migrate import Migrate
 from werkzeug.utils import secure_filename
 from utils import generate_kb_from_file, generate_kb_from_url, get_response
 from models import db, ChatId, User, PushPrompt, PrePrompt, CloserPrompt, KnowledgeBase, Assistant, ChatHistory, InheritChat
-from vectorizor import generate_final_answer,pinecone_result, sql_result, serp_result, simple_generate, del_knowledge_by_knowledge_id, del_knowledgebase_by_assistant_id, del_all_records, preprompt_generate, query_with_dolt, sql_connect, pinecone_connect, query_with_both
+from vectorizor import image_qeury, generate_final_answer,pinecone_result, sql_result, serp_result, simple_generate, del_knowledge_by_knowledge_id, del_knowledgebase_by_assistant_id, del_all_records, preprompt_generate, query_with_dolt, sql_connect, pinecone_connect, query_with_both
 
 app = Flask(__name__)
 # app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
@@ -117,7 +117,7 @@ def test_pinecone():
 def test_final():
    try:
       start_time = time.time()
-      data = request.get_json()
+      data = request.form
       query = data['query']
       print(data)
       chat_id = data['chat_id']
@@ -131,14 +131,34 @@ def test_final():
          chat = ChatId(chat_id=chat_id)
          db.session.add(chat)
          db.session.commit()
-      # Get 3 recent chat history
-      chat_history = ChatHistory.query.filter_by(chat_id=chat_id).order_by(desc(ChatHistory.created_at)).limit(3).all()
-      latest_records = [chat.json() for chat in chat_history]   
+      file = request.files.get('image')
+      if file:
+         try:
+            print('Get files...')
+            if file.filename=='':
+               print('No selected file...')
+            extension = file.filename.rsplit('.', 1)[1].lower()
+            filename = secure_filename(file.filename)
+            save_path = app.config['UPLOAD_FOLDER']+ filename
+            file.save(save_path)
+            response = image_qeury(query=query, image_path=save_path)['choices'][0]['message']['content']
+         except Exception as e:
+            print(str(e))
+            response = "There is an error in Backend!"
+      else:
+         print("There is no image file")
       
-      response = generate_final_answer(assistant_id=assistant_id, query=query)
+
+
+      
+         # Get 3 recent chat history
+         chat_history = ChatHistory.query.filter_by(chat_id=chat_id).order_by(desc(ChatHistory.created_at)).limit(3).all()
+         latest_records = [chat.json() for chat in chat_history]   
+         
+         response = generate_final_answer(assistant_id=assistant_id, query=query)
 
       closer_prompt = CloserPrompt.query.order_by(func.random()).first()
-         
+      # print(response) 
       pre_prompts= preprompt_generate(query)
       pre_prompts = pre_prompts.replace('1. ', '').replace('2. ', '').replace('3. ', '').replace('. ', '.').replace('"','')
       pre_prompts = pre_prompts.split('\n')
@@ -147,7 +167,7 @@ def test_final():
       db.session.add(new_chat)
       db.session.commit()
       end_time = time.time()
-      print(response)
+      # print(response)
       print(f"The query took {end_time-start_time} seconds")
 
       return make_response(jsonify({'response':response, 'closer':closer_prompt.prompt, 'pre_prompts':pre_prompts, 'chat_id':new_chat.chat_id}), 201)
@@ -428,6 +448,31 @@ def closer_prompt():
          print(str(e))
          return make_response(jsonify({'result':'Failed'}), 500)
       
+@app.route('/prompt', methods = ['POST', 'GET'])
+def prompt():
+   if request.method == 'GET':
+      assistant_id = request.args.get('assistant_id')
+
+      with app.app_context():
+
+         prompts = Prompt.query.filter_by(assistant_id=assistant_id).all()
+         return make_response(jsonify([prompt.json() for prompt in prompts]))
+   
+   if request.method == 'POST':
+      try:
+         with app.app_context():
+            data = request.get_json()
+            prompt = data['prompt']
+            assistant_id = data['assistant_id']
+            prompt = Prompt(assistant_id=assistant_id, prompt=prompt)
+            db.session.add(prompt)
+            db.session.commit()
+            # closer_prompt = CloserPrompt.query.filter_by(prompt=prompt).first()
+            return make_response(jsonify(prompt.json()), 201)
+      except Exception as e:
+         print(str(e))
+         return make_response(jsonify({'result':'Failed'}), 500)
+
 #  Delete push prompt
 @app.route('/del_push_prompt', methods=['POST'])
 def delete_push_prompt():
@@ -498,6 +543,24 @@ def update_pre_prompt():
    except Exception as e:
       print(str(e))
       return make_response(jsonify({'message':'Already exits!'}), 500)
+
+# Update prompt
+@app.route('/update_prompt', methods=['POST'])
+def update_prompt():
+   try:
+      with app.app_context():
+         data = request.get_json()
+         id = data['assistant_id']
+         prompt = data['prompt']
+         pre_prompt = Assistant.query.filter_by(id=id).first()
+         if pre_prompt:
+            pre_prompt.prompt = prompt
+            db.session.commit()
+            return make_response(jsonify(pre_prompt.json()), 200)
+         return make_response(jsonify({'message':'Not found!'}), 404)
+   except Exception as e:
+      print(str(e))
+      return make_response(jsonify({'message':'Busy network! Try later!'}), 500)
 
 # Update push-prompt
 @app.route('/update_push_prompt', methods=['POST'])
@@ -632,6 +695,10 @@ def add_assistant():
    use_pinecone = data['use_pinecone']
    use_serp = data['use_serp']
    facebook_enable = data['facebook_enable']
+   assistant_avatar = data['assistant_avatar']
+   user_avatar = data['user_avatar']
+
+   print(data)
    if use_sql:
       sql_host = data['sql_host']
       sql_username = data['sql_username']
@@ -659,7 +726,7 @@ def add_assistant():
 
    with app.app_context():
       try:
-         new_assistant = Assistant(name=assistant_name, prompt=prompt, use_sql=use_sql,use_pinecone=use_pinecone,use_serp=use_serp, facebook_enable=facebook_enable, facebook_token=facebook_token, sql_host=sql_host, sql_username=sql_username, sql_password=sql_password, sql_port=sql_port, sql_db_name=sql_db_name, pinecone_api_key=pinecone_api_key, pinecone_environment=pinecone_environment, pinecone_index_name=pinecone_index_name)
+         new_assistant = Assistant(name=assistant_name, prompt=prompt, use_sql=use_sql,use_pinecone=use_pinecone,use_serp=use_serp, facebook_enable=facebook_enable, facebook_token=facebook_token, sql_host=sql_host, sql_username=sql_username, sql_password=sql_password, sql_port=sql_port, sql_db_name=sql_db_name, pinecone_api_key=pinecone_api_key, pinecone_environment=pinecone_environment, pinecone_index_name=pinecone_index_name, assistant_avatar = assistant_avatar, user_avatar= user_avatar)
          db.session.add(new_assistant)
          db.session.commit()
          print('Successfully saved assistant')
@@ -669,16 +736,27 @@ def add_assistant():
          return make_response(jsonify({'result':'Error saving'}))
       
 # Get assistants
-@app.route('/get_assistant', methods=['GET'])
+@app.route('/get_assistant', methods=['GET', 'POST'])
 def get_assistant():
-   with app.app_context():
-      try:
-         assistants = Assistant.query.all()
-         print(assistants)
-         return make_response(jsonify([assistant.json() for assistant in assistants]))
-      except Exception as e:
-         print(str(e))
-         return make_response(jsonify({'result':'Database Error'}))
+   if request.method == 'GET':
+      with app.app_context():
+         try:
+            assistants = Assistant.query.all()
+            print(assistants)
+            return make_response(jsonify([assistant.json() for assistant in assistants]))
+         except Exception as e:
+            print(str(e))
+            return make_response(jsonify({'result':'Database Error'}))
+   if request.method == 'POST':
+      data = request.get_json()
+      id = data['assistant_id']
+      with app.app_context():
+         try:
+            assistant = Assistant.query.filter_by(id=id).first()
+            return make_response(jsonify(assistant.json()),200)
+         except Exception as e:
+            print(str(e))
+            return make_response(jsonify({'result':'Failed!'}))
 
 # Delete an assistant
 @app.route('/del_assistant', methods=['POST'])
@@ -708,7 +786,8 @@ def update_assistant():
       use_serp = data['use_serp']
       use_pinecone = data['use_pinecone']
       facebook_enable = data['facebook_enable']
-
+      assistant_avatar = data['assistant_avatar']
+      user_avatar = data['user_avatar']
       if use_sql:
          sql_host = data['sql_host']
          sql_username = data['sql_username']
@@ -751,6 +830,8 @@ def update_assistant():
          assistant.pinecone_index_name = pinecone_index_name
          assistant.facebook_enable = facebook_enable
          assistant.facebook_token = facebook_token
+         assistant.assistant_avatar = assistant_avatar
+         assistant.user_avatar = user_avatar
 
          db.session.commit()
          return make_response(jsonify(assistant.json()), 201)

@@ -1,6 +1,7 @@
 
 import openai
 import pinecone 
+from openai import OpenAI
 import time
 from uuid import uuid4
 import pymysql
@@ -27,6 +28,8 @@ from sqlalchemy.engine.url import URL
 from models import Assistant
 # from langchain import LargeLanguageModel
 import os
+import base64
+import requests
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -57,6 +60,43 @@ openai.api_key = OPENAI_API_KEY
 # Prepare pinecone
 # pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
 # index = pinecone.Index('custom-gpt')
+def encode_image(image_path):
+    with open(image_path, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode('utf-8')
+
+# Messaging image
+def image_qeury(query, image_path):
+    base64_image = encode_image(image_path)
+    # print("Base64 code >>>>", base64_image)
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {OPENAI_API_KEY}"
+    }
+
+    payload = {
+        "model":"gpt-4-vision-preview",
+        "messages":[
+            {
+                "role":"user",
+                "content":[
+                    {    
+                        "type":"text",
+                        "text":query
+                    },
+                    {
+                        "type":"image_url",
+                        "image_url": {
+                            "url":f"data:image/jpeg;base64, {base64_image}"
+                        }
+                    }
+                ]
+            }
+        ],
+        "max_tokens": 4096
+    }
+    response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
+    print(response.json())
+    return response.json()
 
 # Connect to SQL
 def sql_connect(host, port, username, password, db_name):

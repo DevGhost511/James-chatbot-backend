@@ -73,7 +73,7 @@ class PrePrompt(db.Model):
     
     def __repr__(self):
         return f"<PrePrompt {self.title}>"
-    
+
 class CloserPrompt(db.Model):
     __tablename__ = 'closer_prompts'
 
@@ -149,9 +149,11 @@ class Assistant(db.Model):
     pinecone_api_key =db.Column(db.String(), nullable = True)
     pinecone_environment = db.Column(db.String(), nullable = True)
     pinecone_index_name = db.Column(db.String(), nullable = True)
+    assistant_avatar = db.Column(db.String(), nullable = True)
+    user_avatar = db.Column(db.String(), nullable = True)
     created_at = db.Column(db.DateTime, nullable = False,  default=datetime.utcnow)
 
-    def __init__(self, name, prompt, use_serp, use_sql, use_pinecone, sql_host, sql_username, sql_password, sql_port, sql_db_name, pinecone_api_key, pinecone_environment, pinecone_index_name, facebook_enable, facebook_token):
+    def __init__(self, name, prompt, use_serp, use_sql, use_pinecone, sql_host, sql_username, sql_password, sql_port, sql_db_name, pinecone_api_key, pinecone_environment, pinecone_index_name, facebook_enable, facebook_token, assistant_avatar, user_avatar):
         self.name = name
         self.prompt = prompt
         self.use_sql = use_sql
@@ -167,6 +169,8 @@ class Assistant(db.Model):
         self.pinecone_index_name = pinecone_index_name
         self.facebook_enable = facebook_enable
         self.facebook_token = facebook_token
+        self.assistant_avatar = assistant_avatar
+        self.user_avatar = user_avatar
         
     def json(self):
         return {'id':self.id, 'assistant_name':self.name, 'prompt':self.prompt, 
@@ -175,7 +179,9 @@ class Assistant(db.Model):
                 'use_serp':self.use_serp,
                 'facebook_enable':self.facebook_enable,
                 'facebook_token':self.facebook_token,
-                'created_at':self.created_at}
+                'created_at':self.created_at,
+                'assistant_avatar':self.assistant_avatar,
+                'user_avatar':self.user_avatar}
     
     def __repr__(self):
         return f"<Assistant {self.name}>"
