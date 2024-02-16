@@ -1,11 +1,11 @@
 
 import openai
-import pinecone 
+from pinecone import Pinecone, ServerlessSpec
 from openai import OpenAI
 import time
 from uuid import uuid4
 import pymysql
-from langchain.vectorstores import Pinecone
+# from langchain.vectorstores import Pinecone
 from langchain.utilities import SQLDatabase, GoogleSerperAPIWrapper
 from langchain.prompts.chat import ChatPromptTemplate
 from langchain.prompts import PromptTemplate
@@ -57,9 +57,7 @@ DOLT_DATABASE = os.getenv("DOLT_DATABASE")
 
 print(PINECONE_INDEX_NAME)
 openai.api_key = OPENAI_API_KEY
-# Prepare pinecone
-# pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
-# index = pinecone.Index('custom-gpt')
+
 def encode_image(image_path):
     with open(image_path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode('utf-8')
@@ -115,12 +113,17 @@ def sql_connect(host, port, username, password, db_name):
 # Connect to Pinecone
 def pinecone_connect(api_key, environment, index_name):
     try:
-        pinecone.init(api_key=api_key, environment=environment)
+        pinecone = Pinecone(api_key=api_key)
+        if index_name not in pinecone.list_indexes().names():
+            pinecone.create_index(name=index_name, environment=environment)
+        
         index = pinecone.Index(index_name)
-        return index
+        print("Index is ----->",index)
+        return {"success": True, "message": "Index created successfully.", "index": index}
     except Exception as e:
-        print(str(e))
-        return False
+        error_message = str(e)
+        print(error_message)
+        return {"success": False, "message": f"Error: {error_message}"}
 
 # The response will be a string that is a question
 def query_refiner(conversation, query):
@@ -166,7 +169,6 @@ def generate_answer(query, assistant_id, template, latest_records):
     api_key = assistant.pinecone_api_key
     environment = assistant.pinecone_environment
     index_name = assistant.pinecone_index_name
-    pinecone.init(api_key=api_key, environment=environment)
     memory = ConversationBufferMemory(memory_key="chat_history", input_key="human_input")
     embeddings = OpenAIEmbeddings(openai_api_key=OPENAI_API_KEY)
 
@@ -201,9 +203,16 @@ def generate_text_embeddings(text_chunks):
 
 # Initialize Pinecone index
 def init_pinecone(index_name, dimension):
-    pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
-    if index_name not in pinecone.list_indexes():
-        pinecone.create_index(index_name, dimension=dimension)
+    pinecone = Pinecone(api_key=PINECONE_API_KEY)
+    if index_name not in pinecone.list_indexes().name():
+        pinecone.create_index(
+            name=index_name, 
+            dimension=dimension, 
+            spec=ServerlessSpec(
+                cloud="aws",
+                region="us-west-2"
+            )
+        )
     return pinecone.Index(index_name)
 
 # Storing and Retrieving Embeddings with Pinecone credentials
@@ -242,7 +251,7 @@ def store_embeddings_in_pinecone(chunks, metalist):
 
 def retrieve_embeddings_from_pinecone(index_name, query_embedding):
     pinecone = Pinecone(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
-    vector_store = pinecone.index(index_name)
+    vector_store = pinecone.Index(index_name)
     results = vector_store.query(queries=query_embedding)
     return results
 

@@ -912,9 +912,12 @@ def test_pinecone_connection():
       environment = data['environment']
       index_name = data['index_name']
       res = pinecone_connect(api_key=api_key, environment=environment, index_name=index_name)
-      print(res.describe_index_stats())
-      if res:
+      
+      if res["success"]:
          return make_response(jsonify({'result':True}), 200)
+      else:
+         return make_response(jsonify({'result':False}), 200)
+         
    except Exception as e:
       print(str(e))
       return make_response(jsonify({'result':False}), 200)

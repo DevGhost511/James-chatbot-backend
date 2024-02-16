@@ -1,3 +1,4 @@
 {
-    "editor.inlineSuggest.showToolbar": "onHover"
+    "editor.inlineSuggest.showToolbar": "onHover",
+    "python.pythonPath": "venv\\Scripts\\python.exe"
 }
