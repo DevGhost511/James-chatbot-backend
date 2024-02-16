@@ -31,7 +31,7 @@ import os
 import base64
 import requests
 from dotenv import load_dotenv
-
+from chunker import getPineconeFromIndex
 load_dotenv()
 
 
@@ -118,7 +118,7 @@ def pinecone_connect(api_key, environment, index_name):
             pinecone.create_index(name=index_name, environment=environment)
         
         index = pinecone.Index(index_name)
-        print("Index is ----->",index)
+        print("Index is ----->", index)
         return {"success": True, "message": "Index created successfully.", "index": index}
     except Exception as e:
         error_message = str(e)
@@ -128,7 +128,7 @@ def pinecone_connect(api_key, environment, index_name):
 # The response will be a string that is a question
 def query_refiner(conversation, query):
     response = openai.Completion.create(
-        model="gpt-3.5-turbo",
+        model="gpt-4-turbo-preview",
         messages=[
             {"role": "system", "content": "You are a helpful assistant."},
             {"role": "user", "content": "Who won the world series in 2020?"}
@@ -139,7 +139,7 @@ def query_refiner(conversation, query):
 def preprompt_generate(query):
     prompt = f'Q: Give me 3 different related queries with {query}. A:'
     response = openai.chat.completions.create(
-        model="gpt-4",
+        model="gpt-4-turbo-preview",
         messages=[
             {"role": "system", "content": "You are a helpful related topic generator. Only provide 3 topics at once."},
             {"role": "user", "content": prompt}
@@ -151,7 +151,7 @@ def preprompt_generate(query):
 def simple_generate(query):
     prompt = f'Q: Give me detailed information about {query}. Include the necessary place google map link at the end. A:'
     response = openai.chat.completions.create(
-        model="gpt-4",
+        model="gpt-4-turbo-preview",
         messages=[
             {"role": "system", "content": "You are a helpful assistant."},
             {"role": "user", "content": prompt}
@@ -172,13 +172,11 @@ def generate_answer(query, assistant_id, template, latest_records):
     memory = ConversationBufferMemory(memory_key="chat_history", input_key="human_input")
     embeddings = OpenAIEmbeddings(openai_api_key=OPENAI_API_KEY)
 
-    docsearch = Pinecone.from_existing_index(
-        index_name=index_name, embedding= embeddings
-    )
+    docsearch = getPineconeFromIndex(index_name)
 
     docs = docsearch.similarity_search(query, k=8, filter={'assistant': (assistant_id)})
     # print(docs)
-    chat_openai = ChatOpenAI(temperature = 0.7, model = "gpt-4", openai_api_key = OPENAI_API_KEY)
+    chat_openai = ChatOpenAI(temperature = 0.7, model = "gpt-4-turbo-preview", openai_api_key = OPENAI_API_KEY)
 
     chain = load_qa_chain(chat_openai, chain_type="stuff", prompt=prompt, memory=memory)
     if len(latest_records) == 0:
@@ -204,7 +202,7 @@ def generate_text_embeddings(text_chunks):
 # Initialize Pinecone index
 def init_pinecone(index_name, dimension):
     pinecone = Pinecone(api_key=PINECONE_API_KEY)
-    if index_name not in pinecone.list_indexes().name():
+    if index_name not in pinecone.list_indexes().names():
         pinecone.create_index(
             name=index_name, 
             dimension=dimension, 
@@ -275,7 +273,7 @@ def del_knowledgebase_by_assistant_id(assistant_id):
         api_key = assistant.pinecone_api_key
         environment = assistant.pinecone_environment
         index_name = assistant.pinecone_index_name
-        pinecone.init(api_key=api_key, environment=environment)
+        pinecone=Pinecone(api_key=api_key)
         index = pinecone.Index(index_name)      
         index.delete(
             filter={
@@ -294,8 +292,8 @@ def del_knowledge_by_knowledge_id(knowledge_id, assistant_id):
         api_key = assistant.pinecone_api_key
         environment = assistant.pinecone_environment
         index_name = assistant.pinecone_index_name
-        pinecone.init(api_key=api_key, environment=environment)
-        index = pinecone.Index(index_name)  
+        pinecone=Pinecone(api_key=api_key)
+        index = pinecone.Index(index_name) 
         index.delete(
             filter={
                 'knowledge':knowledge_id
@@ -334,7 +332,7 @@ def query_with_dolt(query, prompt, assistant_id):
         ]
     )
     db = SQLDatabase.from_uri(f"mysql+mysqldb://{sql_username}:{sql_password}@{sql_host}/{sql_db_name}?ssl=1")
-    llm = ChatOpenAI (temperature=0, model='gpt-4-1106-preview')
+    llm = ChatOpenAI (temperature=0, model='gpt-4-turbo-preview')
     tookkit = SQLDatabaseToolkit(db=db, llm=llm)
     agent_executor = create_sql_agent(
         llm=llm,
@@ -359,13 +357,11 @@ def query_with_both(query, prompt, assistant_id):
     pinecone_api_key = assistant.pinecone_api_key
 
 
-    pinecone.init(api_key=pinecone_api_key, environment=pinecone_environment)
+    
     memory = ConversationBufferMemory(memory_key="chat_history", input_key="human_input")
     embeddings = OpenAIEmbeddings(openai_api_key=OPENAI_API_KEY)
 
-    docsearch = Pinecone.from_existing_index(
-        index_name=pinecone_index_name, embedding= embeddings
-    )
+    docsearch =  getPineconeFromIndex(pinecone_index_name)
 
     docs = docsearch.similarity_search(query, k=8, filter={'assistant': (assistant_id)})
     starter = f"Use this one of knowledge base: {docs}"
@@ -379,7 +375,7 @@ def query_with_both(query, prompt, assistant_id):
         ]
     )
     db = SQLDatabase.from_uri(f"mysql+mysqldb://{sql_username}:{sql_password}@{sql_host}/{sql_db_name}?ssl=1")
-    llm = ChatOpenAI (temperature=0, model='gpt-4-1106-preview')
+    llm = ChatOpenAI (temperature=0, model='gpt-4-turbo-preview')
 
     toolkit = SQLDatabaseToolkit(db=db, llm=llm)
     agent_executor = create_sql_agent(
@@ -402,12 +398,9 @@ def pinecone_result(assistant_id, query):
         pinecone_environment = assistant.pinecone_environment
         pinecone_index_name = assistant.pinecone_index_name
 
-        pinecone.init(api_key=pinecone_api_key, environment=pinecone_environment)
         embeddings = OpenAIEmbeddings(openai_api_key=OPENAI_API_KEY)
 
-        docsearch = Pinecone.from_existing_index(
-            index_name=pinecone_index_name, embedding= embeddings
-        )
+        docsearch = getPineconeFromIndex(pinecone_index_name)
         print("Assistant id >>>", assistant_id)
         docs = docsearch.similarity_search(query, k=8, filter={'assistant': str(assistant_id)})
         print("Pinecone Result >>>", docs)
@@ -423,7 +416,7 @@ def pinecone_result(assistant_id, query):
 def serp_result(query):
     try:
         start_time = time.time()
-        llm = OpenAI(temperature=0)
+        llm = ChatOpenAI(temperature=0, model='gpt-4-turbo-preview')
         search = GoogleSerperAPIWrapper()
 
         tools = [
@@ -462,7 +455,7 @@ def sql_result(assistant_id, query):
         #                         echo_pool='debug') 
         db = SQLDatabase.from_uri(connection_string)
         print("DB connected to>>>", db)
-        llm = ChatOpenAI (temperature=0, model='gpt-4-1106-preview')
+        llm = ChatOpenAI (temperature=0, model='gpt-4-turbo-preview')
         toolkit = SQLDatabaseToolkit(db=db, llm=llm)
         agent_executor = create_sql_agent(
             llm=llm,
@@ -503,7 +496,7 @@ def generate_final_answer(assistant_id, query):
         else:
             sql_res = 'There is no relevant information'
         
-        template = """\nThere are 3 kind of knowledge base for given information: SQL Results, Pinecone Restuls and SERp Results. Summarize the information to give a helpful assistant to users.
+        template = """\nThere are 3 kind of knowledge base for given information: SQL Results, Pinecone Restuls and SERp Results. Summarize the information to give a helpful assistant to users. If there is no relevant information, Give me general ideal to user. Don't indicate that where the info is from.
             SQL Results:{sql_result}
             Pinecone Results:{pinecone_result}
             SERP Results:{serp_result}
@@ -521,7 +514,7 @@ def generate_final_answer(assistant_id, query):
         print("Template >>>", question)
 
 
-        llm = ChatOpenAI (temperature=0, model='gpt-4-1106-preview')
+        llm = ChatOpenAI (temperature=0, model='gpt-4-turbo-preview')
         messages = [
             SystemMessage(
                 content= "You are a helpful assistant that privdes relevant answers"
