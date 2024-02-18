@@ -618,10 +618,10 @@ def add_knowledge():
             db.session.commit()
             count = generate_kb_from_file(assistant_id, new_knowledge.id, save_path, pinecone_api_key, pinecone_index_name)
  
-            knowledge = KnowledgeBase.query.filter_by(assistant_id=assistant_id).first()
+            knowledge = KnowledgeBase.query.filter_by(id=new_knowledge.id).first()
             knowledge.count = count
             db.session.commit()
-            print('Succesfully saved a file')
+            print('Succesfully saved a file', count)
             # Save to pinecone
             
             
@@ -640,10 +640,10 @@ def add_knowledge():
                   count = generate_kb_from_url(assistant_id=assistant_id, knowledge_id=new_knowledge.id, url=knowledge_name, api_key=pinecone_api_key, index_name=pinecone_index_name)
                   if count == -1:
                      return make_response(jsonify({'result':'Invalid URL'}), 200)
-                  knowledge = KnowledgeBase.query.filter_by(assistant_id=assistant_id).first()
+                  knowledge = KnowledgeBase.query.filter_by(id=new_knowledge.id).first()
                   knowledge.count = count
                   db.session.commit()
-                  print('Successfully saved a URL')
+                  print('Successfully saved a URL', count)
                   return make_response(jsonify(new_knowledge.json()), 200)
                except Exception as e:
                   print(str(e))
@@ -678,7 +678,7 @@ def delete_knowledge():
          knowledge_base = KnowledgeBase.query.filter_by(id=id).first()
          
          if knowledge_base:
-
+            print(knowledge_base.assistant_id)
             # Delete knowledge in pinecone
             del_knowledge_by_knowledge_id(id, knowledge_base.assistant_id)
             db.session.delete(knowledge_base)

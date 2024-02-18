@@ -281,11 +281,12 @@ def del_knowledge_by_knowledge_id(knowledge_id, assistant_id):
         index_name = assistant.pinecone_index_name
         pinecone=Pinecone(api_key=api_key)
         index = pinecone.Index(index_name)
-        print(assistant)
         knowledge_base = KnowledgeBase.query.filter_by(id=knowledge_id).first()
         
         count = knowledge_base.count
         ids = [f"{knowledge_id}_{i}" for i in range(count)]
+        print(knowledge_id, count)
+
         print(ids)
         index.delete(ids=ids)
         print("Deletion success!")
