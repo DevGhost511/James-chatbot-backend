@@ -288,6 +288,7 @@ def del_knowledge_by_knowledge_id(knowledge_id, assistant_id):
         ids = [f"{knowledge_id}_{i}" for i in range(count)]
         print(ids)
         index.delete(ids=ids)
+        print("Deletion success!")
         return True
     except Exception as e:
         print(str(e))
