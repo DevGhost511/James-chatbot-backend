@@ -23,17 +23,18 @@ from langchain.schema import SystemMessage, HumanMessage
 from langchain_core.runnables import RunnablePassthrough
 from sqlalchemy import create_engine
 from urllib.parse import quote
+
+from models import KnowledgeBase
 from sqlalchemy.engine.url import URL
 # from langchain.sql_database import SQLDatabase
-from models import Assistant
+from models import Assistant, KnowledgeBase
 # from langchain import LargeLanguageModel
 import os
 import base64
 import requests
 from dotenv import load_dotenv
-from chunker import getPineconeFromIndex
+from chunker import getPineconeFromIndex, saveToPinecone
 load_dotenv()
-
 
 # Set up OpenAI and Pinecone API keys
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -115,7 +116,8 @@ def pinecone_connect(api_key, environment, index_name):
     try:
         pinecone = Pinecone(api_key=api_key)
         if index_name not in pinecone.list_indexes().names():
-            pinecone.create_index(name=index_name, environment=environment)
+            return {"success": False, "message": "There is no such an index"}
+               
         
         index = pinecone.Index(index_name)
         print("Index is ----->", index)
@@ -214,34 +216,18 @@ def init_pinecone(index_name, dimension):
     return pinecone.Index(index_name)
 
 # Storing and Retrieving Embeddings with Pinecone credentials
-def store_embeddings_in_pinecone(chunks, metalist, pinecone_api_key, pinecone_environment, pinecone_index_name):
+def store_embeddings_in_pinecone(chunks, metalist, pinecone_api_key, ids, pinecone_index_name):
     try:
         if pinecone_api_key is not None:
             PINECONE_API_KEY = pinecone_api_key
-        if pinecone_environment is not None:
-            PINECONE_ENVIRONMENT = pinecone_environment
+        
         if pinecone_index_name is not None:
             PINECONE_INDEX_NAME = pinecone_index_name 
         # pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
         embeddings = OpenAIEmbeddings(openai_api_key=OPENAI_API_KEY)
-        Pinecone.from_texts(
-            chunks, embeddings, 
-                index_name=PINECONE_INDEX_NAME, metadatas = metalist)
+        saveToPinecone(chunks, embeddings, PINECONE_INDEX_NAME, metalist, ids)
+        
         print("Success embedding...")
-        return True
-    except Exception as e:
-        print("Error embedding...", str(e))
-        return False
-    
-# Storing and Retrieving Embeddings with Pinecone 
-def store_embeddings_in_pinecone(chunks, metalist):
-    try:
-        # pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
-        embeddings = OpenAIEmbeddings(openai_api_key=OPENAI_API_KEY)
-        Pinecone.from_texts(
-            chunks, embeddings, 
-                index_name=PINECONE_INDEX_NAME, metadatas = metalist)
-        print("Success embedding...1")
         return True
     except Exception as e:
         print("Error embedding...", str(e))
@@ -288,19 +274,23 @@ def del_knowledgebase_by_assistant_id(assistant_id):
 
 def del_knowledge_by_knowledge_id(knowledge_id, assistant_id):
     try:
-        assistant = Assistant.query.filter_by(assistant_id=assistant_id).first()
+        # print("knowledge_id >>", assistant_id)
+        assistant = Assistant.query.filter_by(id=assistant_id).first()
         api_key = assistant.pinecone_api_key
         environment = assistant.pinecone_environment
         index_name = assistant.pinecone_index_name
         pinecone=Pinecone(api_key=api_key)
-        index = pinecone.Index(index_name) 
-        index.delete(
-            filter={
-                'knowledge':knowledge_id
-            }
-        )
+        index = pinecone.Index(index_name)
+        print(assistant)
+        knowledge_base = KnowledgeBase.query.filter_by(id=knowledge_id).first()
+        
+        count = knowledge_base.count
+        ids = [f"{knowledge_id}_{i}" for i in range(count)]
+        print(ids)
+        index.delete(ids=ids)
         return True
-    except:
+    except Exception as e:
+        print(str(e))
         return False
 
 # Create embeddings and populate the index with the train data
@@ -442,17 +432,14 @@ def sql_result(assistant_id, query):
     try:
         start_time = time.time()
         assistant = Assistant.query.filter_by(id=assistant_id).first()
-        sql_host = 'hospitalprices.mysql.database.azure.com'
-        sql_username = 'leader'
-        sql_password = quote('g9JGK@r0224*#309kdl', safe='')
-        sql_port = 3306
-        sql_db_name = 'hospitalprices'
+        sql_host = assistant.sql_host
+        sql_username = assistant.sql_username
+        sql_password = quote(assistant_sql_password, safe='')
+        sql_port = assistant.sql_port
+        sql_db_name = assistant.sql_db_name
          
         connection_string = f'mysql+mysqldb://{sql_username}:{sql_password}@{sql_host}:{sql_port}/{sql_db_name}?ssl=1'
-
-        # engine = create_engine(connection_string,
-        #                         pool_pre_ping=True,
-        #                         echo_pool='debug') 
+ 
         db = SQLDatabase.from_uri(connection_string)
         print("DB connected to>>>", db)
         llm = ChatOpenAI (temperature=0, model='gpt-4-turbo-preview')

@@ -147,10 +147,6 @@ def test_final():
             response = "There is an error in Backend!"
       else:
          print("There is no image file")
-      
-
-
-      
          # Get 3 recent chat history
          chat_history = ChatHistory.query.filter_by(chat_id=chat_id).order_by(desc(ChatHistory.created_at)).limit(3).all()
          latest_records = [chat.json() for chat in chat_history]   
@@ -603,7 +599,10 @@ def update_closer_prompt():
 def add_knowledge():
    if 'assistant_id' in request.form:
       assistant_id = request.form['assistant_id']
-      
+      assistant = Assistant.query.filter_by(id=assistant_id).first()
+      pinecone_api_key = assistant.pinecone_api_key
+      pinecone_environment = assistant.pinecone_environment
+      pinecone_index_name = assistant.pinecone_index_name
       file = request.files.get('file')
       if file:
          try:
@@ -614,17 +613,17 @@ def add_knowledge():
             filename = secure_filename(file.filename)
             save_path = app.config['UPLOAD_FOLDER']+ filename
             file.save(save_path)
-            new_knowledge = KnowledgeBase(assistant_id=assistant_id, name=filename, type_of_knowledge=extension)
+            new_knowledge = KnowledgeBase(assistant_id=assistant_id, name=filename, type_of_knowledge=extension, count=0)
             db.session.add(new_knowledge)
+            db.session.commit()
+            count = generate_kb_from_file(assistant_id, new_knowledge.id, save_path, pinecone_api_key, pinecone_index_name)
+ 
+            knowledge = KnowledgeBase.query.filter_by(assistant_id=assistant_id).first()
+            knowledge.count = count
             db.session.commit()
             print('Succesfully saved a file')
             # Save to pinecone
-            assistant = Assistant.query.filter_by(id=assistant_id).first()
-            pinecone_api_key = assistant.pinecone_api_key
-            pinecone_environment = assistant.pinecone_environment
-            pinecone_index_name = assistant.pinecone_index_name
-
-            generate_kb_from_file(assistant_id, new_knowledge.id, save_path, pinecone_api_key, pinecone_environment, pinecone_index_name)
+            
             
             return make_response(jsonify(new_knowledge.json()), 201)
          except Exception as e:
@@ -634,13 +633,16 @@ def add_knowledge():
          knowledge_name = request.form['knowledge_name']
          if knowledge_name:
             with app.app_context():
-               try:
-                  new_knowledge = KnowledgeBase(assistant_id=assistant_id, name=knowledge_name, type_of_knowledge='URL')
+               try:         
+                  new_knowledge = KnowledgeBase(assistant_id=assistant_id, name=knowledge_name, type_of_knowledge='URL', count=0)
                   db.session.add(new_knowledge)
                   db.session.commit()
-                  res = generate_kb_from_url(assistant_id=assistant_id, knowledge_id=new_knowledge.id, url=knowledge_name)
-                  if res is False:
+                  count = generate_kb_from_url(assistant_id=assistant_id, knowledge_id=new_knowledge.id, url=knowledge_name, api_key=pinecone_api_key, index_name=pinecone_index_name)
+                  if count == -1:
                      return make_response(jsonify({'result':'Invalid URL'}), 200)
+                  knowledge = KnowledgeBase.query.filter_by(assistant_id=assistant_id).first()
+                  knowledge.count = count
+                  db.session.commit()
                   print('Successfully saved a URL')
                   return make_response(jsonify(new_knowledge.json()), 200)
                except Exception as e:
@@ -671,14 +673,16 @@ def delete_knowledge():
    try:
       with app.app_context():
          data = request.get_json()
+         # print(data)
          id = data['id']
-         assistant_id = data['assistant_id']
          knowledge_base = KnowledgeBase.query.filter_by(id=id).first()
+         
          if knowledge_base:
+
+            # Delete knowledge in pinecone
+            del_knowledge_by_knowledge_id(id, knowledge_base.assistant_id)
             db.session.delete(knowledge_base)
             db.session.commit()
-            # Delete knowledge in pinecone
-            del_knowledge_by_knowledge_id(id, assistant_id)
             return make_response(jsonify({'id':id}), 200)
          return make_response(jsonify({'message':'Not found!'}), 404)
    except Exception as e:

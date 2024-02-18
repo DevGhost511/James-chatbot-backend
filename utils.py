@@ -22,7 +22,7 @@ def generate_query(user_id, knowledge_name, chat_history, user_query):
 
     return answer
     
-def generate_kb_from_xlsx(assistant_id, knowledge_id, path, api_key, environment, index_name):
+def generate_kb_from_xlsx(assistant_id, knowledge_id, path, api_key, index_name):
     excel = xl.load_workbook(path)
     sheetnames = excel.sheetnames
     res = {}
@@ -34,60 +34,67 @@ def generate_kb_from_xlsx(assistant_id, knowledge_id, path, api_key, environment
     chunks = tiktoken_split(str_data)
     metadic ={'knowledge':knowledge_id, 'assistant':assistant_id}
     metalist = []
+    ids = []
+    
     for c in enumerate(chunks):
         metalist.append(metadic)
+        ids.append(str(knowledge_id))
 
-    store_embeddings_in_pinecone(chunks, metalist, api_key, environment, index_name)
-    return res
+    store_embeddings_in_pinecone(chunks, metalist, api_key, ids, index_name)
+    return len(chunks)
 
-def generate_kb_from_file(assistant_id, knowledge_id, path, api_key, environment, index_name):
+def generate_kb_from_file(assistant_id, knowledge_id, path, api_key, index_name):
     try:
         extension = path.split('.')[-1]
         extension = extension.lower()
         if extension == 'txt':
-            generate_kb_from_txt(assistant_id=assistant_id, knowledge_name=knowledge_id, path=path, api_key=api_key, environment=environment, index_name=index_name)
+            count = generate_kb_from_txt(assistant_id=assistant_id, knowledge_id=knowledge_id, path=path, api_key=api_key, index_name=index_name)
             os.remove(path)
-            return True
+            return count
         if extension == 'xlsx' or extension == 'xls':
-            generate_kb_from_xlsx(assistant_id, knowledge_id, path, api_key=api_key, environment=environment, index_name=index_name)
+            count = generate_kb_from_xlsx(assistant_id, knowledge_id, path, api_key=api_key, index_name=index_name)
             os.remove(path)
-            return True
-        return False
+            return count
+        return -1
     except Exception as e:
         print(str(e))
-        return False
+        return -1
 
-def generate_kb_from_txt(assistant_id, knowledge_name, path, api_key, environment, index_name):
+def generate_kb_from_txt(assistant_id, knowledge_id, path, api_key, index_name):
     try:
         with open(path, encoding='utf8') as f:
             content = f.read()
         chunks = tiktoken_split(content)
-        metadic ={'knowledge':knowledge_name, 'assistant':assistant_id}
+        metadic ={'knowledge':knowledge_id, 'assistant':assistant_id}
         metalist = []
-        for c in enumerate(chunks):
+        ids = []
+        for index, chunk in enumerate(chunks):
             metalist.append(metadic)
+            ids.append(str(knowledge_id)+"_"+str(index))
 
-        store_embeddings_in_pinecone(chunks, metalist, api_key, environment, index_name)
-        return True
+        store_embeddings_in_pinecone(chunks, metalist, api_key, ids, index_name)
+        return len(chunks)
     except Exception as e:
         print(str(e))
-        return False
+        return -1
 
-def generate_kb_from_url(assistant_id, knowledge_id, url, api_key, environment, index_name):
+def generate_kb_from_url(assistant_id, knowledge_id, url, api_key, index_name):
     try:
         chunks = get_chunks(url)
-        if chunks is False:
+        if chunks is None:
             return False
         metadic ={'knowledge':knowledge_id, 'assistant':assistant_id}
         print(chunks)
         metalist = []
-        for c in enumerate(chunks):
+        ids = []
+        for index, chunk in enumerate(chunks):
             metalist.append(metadic)
-        store_embeddings_in_pinecone(chunks, metalist, api_key, environment, index_name)
-        return True
+            ids.append(str(knowledge_id)+"_"+str(index))
+        store_embeddings_in_pinecone(chunks, metalist, api_key, ids, index_name)
+        return len(chunks)
     except Exception as e:
         print(str(e))
-        return False
+        return -1
 
 def get_response(query, prompt, latest_records, assistant_id):
     
@@ -100,14 +107,6 @@ def get_response(query, prompt, latest_records, assistant_id):
     answer = generate_answer(query=query, assistant_id=assistant_id, latest_records=latest_records, template=template)
     
     return answer
-
-def save_to_pinecone(user_id, knowledge_name, knowledge_urls):
-    metadic ={'source': user_id + knowledge_name}
-    chunks = get_chunks(knowledge_urls)
-    metalist = []
-    for c in enumerate(chunks):
-        metalist.append(metadic)
-    store_embeddings_in_pinecone(chunks, metalist)
 
 def query_without_knowledge(chat_history, user_query):
     template = """The following is a friendly conversation between a human and an AI. The AI is talkative and provides lots of specific details from its context. If the AI does not know the answer to a question, it truthfully says it does not know.

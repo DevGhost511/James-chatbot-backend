@@ -1,6 +1,5 @@
 import requests
 from bs4 import BeautifulSoup
-from langchain.document_loaders import BSHTMLLoader
 from chunker import tiktoken_split
 
 # Define a function to scrape the text content from a URL
@@ -17,7 +16,7 @@ def scrape_url(url):
         text = soup.get_text()
         # Preprocess the text content as needed
         processed_text = preprocess_text(text)
-    
+        # print(processed_text)
         return processed_text
     except :
         return False
@@ -43,12 +42,10 @@ def scrape_urls(urls):
     except:
         return False
 
-def get_chunks(urls):
+def get_chunks(url):
     chunks = []
     try:
-        for data in scrape_urls(urls):
-            chunks.extend(tiktoken_split(data))
-        # print("Scraped chunks >>>", chunks)
+        chunks.extend(tiktoken_split(scrape_url(url)))
         return chunks
     except:
         return False

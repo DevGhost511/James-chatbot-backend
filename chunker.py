@@ -1,6 +1,7 @@
 import tiktoken
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import Pinecone
+from langchain.vectorstores import Pinecone
+
 from langchain.embeddings.openai import OpenAIEmbeddings
 import os
 from dotenv import load_dotenv
@@ -34,6 +35,13 @@ def getPineconeFromIndex(index_name):
         index_name=index_name, embedding= embeddings
     )
     return docsearch
+
+def saveToPinecone(chunks, embeddings, index_name, metalist, ids):
+    print("Ids---->", ids)
+    
+    Pinecone.from_texts(chunks, index_name= index_name, embedding=embeddings, metadatas = metalist, ids = ids)
+    
+    print("Success embedding...")
 
 
     

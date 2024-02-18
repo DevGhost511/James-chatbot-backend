@@ -116,13 +116,15 @@ class KnowledgeBase(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement = True)
     assistant_id = db.Column(db.String(), nullable = False)
     name = db.Column(db.String(), unique = True, nullable = False)
+    count = db.Column(db.Integer, nullable = False, default = 0)
     type_of_knowledge = db.Column(db.String(), nullable = False)
     created_at = db.Column(db.DateTime, nullable = False,  default=datetime.utcnow)
 
-    def __init__(self, assistant_id, name, type_of_knowledge):
+    def __init__(self, assistant_id, name, type_of_knowledge, count):
         self.assistant_id = assistant_id
         self.name = name
-        self.type_of_knowledge = type_of_knowledge    
+        self.type_of_knowledge = type_of_knowledge
+        self.count = count
 
     def json(self):
         return {'id':self.id, 'assistant_id':self.assistant_id, 'name':self.name, 'type_of_knowledge':self.type_of_knowledge, 'created_at':self.created_at}
