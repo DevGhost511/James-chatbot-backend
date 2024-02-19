@@ -121,11 +121,14 @@ def test_final():
       query = data['query']
       print(data)
       chat_id = data['chat_id']
+      chat = ''
       if 'assistant_id' in data:
          assistant_id = data['assistant_id']
       else :
          assistant_id = 1
-      if chat_id == '': # New user
+      if chat_id:
+         chat = ChatId.query.filter_by(chat_id = chat_id).first() 
+      if chat == '': # New user
          chat_id = str(uuid.uuid4())
          print(chat_id)
          chat = ChatId(chat_id=chat_id)

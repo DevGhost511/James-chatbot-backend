@@ -18,7 +18,7 @@ from langchain.chains.question_answering import load_qa_chain
 import mysql.connector
 from langchain.agents import create_sql_agent, initialize_agent, Tool
 from langchain.agents.agent_toolkits import SQLDatabaseToolkit
-from langchain.llms.openai import OpenAI
+from langchain_openai import OpenAI
 from langchain.schema import SystemMessage, HumanMessage
 from langchain_core.runnables import RunnablePassthrough
 from sqlalchemy import create_engine
@@ -38,6 +38,7 @@ load_dotenv()
 
 # Set up OpenAI and Pinecone API keys
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+SERPER_API_KEY = os.getenv("SERPER_API_KEY")
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
 INDEX_NAME = os.getenv("INDEX_NAME")
 PINECONE_ENVIRONMENT = os.getenv("PINECONE_ENVIRONMENT")
@@ -56,7 +57,7 @@ DOLT_DATABASE = os.getenv("DOLT_DATABASE")
 #     database = DOLT_DATABASE
 # )
 
-print(PINECONE_INDEX_NAME)
+print(SERPER_API_KEY)
 openai.api_key = OPENAI_API_KEY
 
 def encode_image(image_path):
@@ -178,7 +179,7 @@ def generate_answer(query, assistant_id, template, latest_records):
 
     docs = docsearch.similarity_search(query, k=8, filter={'assistant': (assistant_id)})
     # print(docs)
-    chat_openai = ChatOpenAI(temperature = 0.7, model = "gpt-4-turbo-preview", openai_api_key = OPENAI_API_KEY)
+    chat_openai = OpenAI(temperature = 0.7, model = "gpt-4-turbo-preview", openai_api_key = OPENAI_API_KEY)
 
     chain = load_qa_chain(chat_openai, chain_type="stuff", prompt=prompt, memory=memory)
     if len(latest_records) == 0:
@@ -408,7 +409,7 @@ def pinecone_result(assistant_id, query):
 def serp_result(query):
     try:
         start_time = time.time()
-        llm = ChatOpenAI(temperature=0, model='gpt-4-turbo-preview')
+        llm = OpenAI(temperature=0, model="gpt-4-turbo-preview")
         search = GoogleSerperAPIWrapper()
 
         tools = [
@@ -418,13 +419,30 @@ def serp_result(query):
                 description="userful for when you need to ask with google search"
             )
         ]
-
-        ask_with_search = initialize_agent(tools, llm, agent=AgentType.SELF_ASK_WITH_SEARCH)
-        result = ask_with_search.run(query)
+        result = search.results(query)
         end_time = time.time()
         print('SERP Result >>>', result)
         print(f'>>> Google search takes {end_time-start_time} seconds')
         return result
+        # ask_with_search = initialize_agent(tools, llm, agent=AgentType.SELF_ASK_WITH_SEARCH, verbose=True)
+        # print("I am here =============>", query)
+        
+        # result = ask_with_search.invoke(query)
+        # print("I am here =============>", result)
+        # llm = OpenAI(temperature=0)
+        # search = GoogleSerperAPIWrapper()
+        # tools = [
+        #     Tool(
+        #         name="Intermediate Answer",
+        #         func=search.run,
+        #         description="useful for when you need to ask with search"
+        #     )
+        # ]
+
+        # self_ask_with_search = initialize_agent(tools, llm, agent=AgentType.SELF_ASK_WITH_SEARCH, verbose=True, handle_parsing_errors=True)
+        # result = self_ask_with_search.run("What is the google search result for "+ query)
+
+       
     except Exception as e:
         print(str(e))
         return 'There is no relevant information.'
