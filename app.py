@@ -9,7 +9,7 @@ from flask_migrate import Migrate
 from werkzeug.utils import secure_filename
 from utils import generate_kb_from_file, generate_kb_from_url, get_response
 from models import db, ChatId, User, PushPrompt, PrePrompt, CloserPrompt, KnowledgeBase, Assistant, ChatHistory, InheritChat
-from vectorizor import image_qeury, generate_final_answer,pinecone_result, sql_result, serp_result, simple_generate, del_knowledge_by_knowledge_id, del_knowledgebase_by_assistant_id, del_all_records, preprompt_generate, query_with_dolt, sql_connect, pinecone_connect, query_with_both
+from vectorizor import generate_image, image_qeury, generate_final_answer,pinecone_result, sql_result, serp_result, simple_generate, del_knowledge_by_knowledge_id, del_knowledgebase_by_assistant_id, del_all_records, preprompt_generate, query_with_dolt, sql_connect, pinecone_connect, query_with_both
 
 app = Flask(__name__)
 # app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
@@ -64,7 +64,7 @@ def login():
    except Exception as e:
       print(str(e))
       return make_response(jsonify({'result':'Error'}), 400)
-            
+           
 #  Google auth
 @app.route('/google_auth', methods=['POST'])
 def google_auth():
@@ -119,7 +119,7 @@ def test_final():
       start_time = time.time()
       data = request.form
       query = data['query']
-      print(data)
+      print("Received from frontend=====>", data)
       chat_id = data['chat_id']
       chat = ''
       if 'assistant_id' in data:
@@ -130,7 +130,7 @@ def test_final():
          chat = ChatId.query.filter_by(chat_id = chat_id).first() 
       if chat == '': # New user
          chat_id = str(uuid.uuid4())
-         print(chat_id)
+         # print(chat_id)
          chat = ChatId(chat_id=chat_id)
          db.session.add(chat)
          db.session.commit()
@@ -155,10 +155,15 @@ def test_final():
          latest_records = [chat.json() for chat in chat_history]   
          
          response = generate_final_answer(assistant_id=assistant_id, query=query)
-
+      image_url = ''
+      print("assistant id is >>>>>", assistant_id)
+      if assistant_id == "5":
+         print("Recipes >>>>>", response)
+         image_url = generate_image(response)
+         print("Image Url >>>>>>>",image_url)
       closer_prompt = CloserPrompt.query.order_by(func.random()).first()
       # print(response) 
-      pre_prompts= preprompt_generate(query)
+      pre_prompts= preprompt_generate(query, assistant_id)
       pre_prompts = pre_prompts.replace('1. ', '').replace('2. ', '').replace('3. ', '').replace('. ', '.').replace('"','')
       pre_prompts = pre_prompts.split('\n')
       new_chat = ChatHistory(chat_id=chat_id, user_query=query, response=response)
@@ -169,12 +174,18 @@ def test_final():
       # print(response)
       print(f"The query took {end_time-start_time} seconds")
 
-      return make_response(jsonify({'response':response, 'closer':closer_prompt.prompt, 'pre_prompts':pre_prompts, 'chat_id':new_chat.chat_id}), 201)
+      return make_response(jsonify({'response':response, 'closer':closer_prompt.prompt, 'pre_prompts':pre_prompts, 'chat_id':new_chat.chat_id, 'image':image_url}), 201)
 
    except Exception as e:
       print(str(e))
       response = 'Busy network. Try again later'
       return make_response(jsonify({'response':response}), 201)
+@app.route('/generate_image', methods=['POST'])
+def generate_iamge_from():
+   data = request.get_json()
+   query = data['query']
+   result = generate_image(query)
+   return make_response(jsonify({'response':result}), 201)
 
 def query_from_sql(data):
    try:
@@ -350,7 +361,7 @@ def get_chats():
       chat_id = data['user_id']
       if 'hsitory_id' in data:
          history_id = data['history_id']
-         print('From shared history...')
+         print('From shared history...', history_id)
          pre_chats = ChatHistory.query.filter_by(chat_id=chat_id).all()
          db.session.delete(pre_chats)
          db.session.commit()
@@ -704,7 +715,7 @@ def add_assistant():
    facebook_enable = data['facebook_enable']
    assistant_avatar = data['assistant_avatar']
    user_avatar = data['user_avatar']
-
+   weather_api = data['weather_api']
    print(data)
    if use_sql:
       sql_host = data['sql_host']
@@ -733,7 +744,7 @@ def add_assistant():
 
    with app.app_context():
       try:
-         new_assistant = Assistant(name=assistant_name, prompt=prompt, use_sql=use_sql,use_pinecone=use_pinecone,use_serp=use_serp, facebook_enable=facebook_enable, facebook_token=facebook_token, sql_host=sql_host, sql_username=sql_username, sql_password=sql_password, sql_port=sql_port, sql_db_name=sql_db_name, pinecone_api_key=pinecone_api_key, pinecone_environment=pinecone_environment, pinecone_index_name=pinecone_index_name, assistant_avatar = assistant_avatar, user_avatar= user_avatar)
+         new_assistant = Assistant(name=assistant_name, prompt=prompt, use_sql=use_sql,use_pinecone=use_pinecone,use_serp=use_serp, facebook_enable=facebook_enable, facebook_token=facebook_token, sql_host=sql_host, sql_username=sql_username, sql_password=sql_password, sql_port=sql_port, sql_db_name=sql_db_name, pinecone_api_key=pinecone_api_key, pinecone_environment=pinecone_environment, pinecone_index_name=pinecone_index_name, assistant_avatar = assistant_avatar, user_avatar= user_avatar, weather_api=weather_api)
          db.session.add(new_assistant)
          db.session.commit()
          print('Successfully saved assistant')
@@ -795,6 +806,7 @@ def update_assistant():
       facebook_enable = data['facebook_enable']
       assistant_avatar = data['assistant_avatar']
       user_avatar = data['user_avatar']
+      weather_api = data['weather_api']
       if use_sql:
          sql_host = data['sql_host']
          sql_username = data['sql_username']
@@ -839,6 +851,7 @@ def update_assistant():
          assistant.facebook_token = facebook_token
          assistant.assistant_avatar = assistant_avatar
          assistant.user_avatar = user_avatar
+         assistant.weather_api = weather_api
 
          db.session.commit()
          return make_response(jsonify(assistant.json()), 201)

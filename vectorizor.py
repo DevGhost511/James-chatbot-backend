@@ -139,8 +139,11 @@ def query_refiner(conversation, query):
     )
     return response.choices[0].message.content
 
-def preprompt_generate(query):
-    prompt = f'Q: Give me 3 different related queries with {query}. A:'
+def preprompt_generate(query, assistant_id):
+    limit = ''
+    if assistant_id == 5:
+        limit = ' Each query must be less than 20 characters'
+    prompt = f'Q: Give me 3 different related queries with {query}.{limit} A:'
     response = openai.chat.completions.create(
         model="gpt-4-turbo-preview",
         messages=[
@@ -308,6 +311,7 @@ def create_and_index_embeddings(text_chunks, metalist):
     except Exception as e:
         print(e)
     return chatgpt_index
+
 # Query with database
 def query_with_dolt(query, prompt, assistant_id):
     # sql_db = SQLDatabase.from_dbapi(db)
@@ -447,6 +451,44 @@ def serp_result(query):
         print(str(e))
         return 'There is no relevant information.'
     
+# Generate an image using dall-e-3 model
+def generate_image(query):
+    try:
+        prompt = f"""
+        Generate an image that represents the essence of the following recipe:
+        {query}
+        Please create an image that conveys the heartiness and deliciousness of the food.
+        """
+        # client = OpenAI()
+        # response = client.images.generate(
+        #         model="dall-e-3",
+        #         prompt="A cute baby sea otter",
+        #         n=1,
+        #         size="1024x1024"
+        #     )
+        print("Generating images...")
+        headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {OPENAI_API_KEY}"
+            }
+
+        print("Prompt for generating an image >>>", prompt)
+        payload = {
+            "model": "dall-e-3",
+            "prompt": prompt,
+            "n": 1,
+            "size": "1024x1024",
+            "response_format":"url"
+        }
+        response = requests.post("https://api.openai.com/v1/images/generations", headers=headers, json=payload)
+        # print(response.json())
+        json_res = response.json()
+        print("Json data of image url >>>>>", json_res)
+        image_url = json_res["data"][0]["url"]
+        return image_url
+    except Exception as e:
+        print(str(e))
+        return str(e)
 # Get result from sql
 def sql_result(assistant_id, query):
     try:
@@ -502,8 +544,8 @@ def generate_final_answer(assistant_id, query):
             sql_res = sql_result(assistant_id, query)
         else:
             sql_res = 'There is no relevant information'
-        
-        template = """\nThere are 3 kind of knowledge base for given information: SQL Results, Pinecone Restuls and SERp Results. Summarize the information to give a helpful assistant to users. If there is no relevant information, Give me general ideal to user. Don't indicate that where the info is from.
+        preprompt = assistant.prompt
+        template = """{preprompt}\nThere are 3 kind of knowledge base for given information: SQL Results, Pinecone Restuls and SERp Results. Summarize the information to give a helpful assistant to users. If there is no relevant information, Give me general ideal to user. Don't indicate that where the info is from.
             SQL Results:{sql_result}
             Pinecone Results:{pinecone_result}
             SERP Results:{serp_result}
@@ -512,6 +554,7 @@ def generate_final_answer(assistant_id, query):
         prompt = PromptTemplate.from_template(template)
         # print(template)
         question = prompt.format(
+            preprompt = preprompt,
             sql_result= sql_res,
             pinecone_result = pinecone_res,
             serp_result = serp_res,

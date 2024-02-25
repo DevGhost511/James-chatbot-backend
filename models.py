@@ -152,10 +152,11 @@ class Assistant(db.Model):
     pinecone_environment = db.Column(db.String(), nullable = True)
     pinecone_index_name = db.Column(db.String(), nullable = True)
     assistant_avatar = db.Column(db.String(), nullable = True)
-    user_avatar = db.Column(db.String(), nullable = True)
+    user_avatar = db.Column(db.String(), nullable=True)
+    weather_api = db.Column(db.Boolean, nullable = False)
     created_at = db.Column(db.DateTime, nullable = False,  default=datetime.utcnow)
 
-    def __init__(self, name, prompt, use_serp, use_sql, use_pinecone, sql_host, sql_username, sql_password, sql_port, sql_db_name, pinecone_api_key, pinecone_environment, pinecone_index_name, facebook_enable, facebook_token, assistant_avatar, user_avatar):
+    def __init__(self, name, prompt, use_serp, use_sql, use_pinecone, sql_host, sql_username, sql_password, sql_port, sql_db_name, pinecone_api_key, pinecone_environment, pinecone_index_name, facebook_enable, facebook_token, assistant_avatar, user_avatar, weather_api):
         self.name = name
         self.prompt = prompt
         self.use_sql = use_sql
@@ -173,6 +174,7 @@ class Assistant(db.Model):
         self.facebook_token = facebook_token
         self.assistant_avatar = assistant_avatar
         self.user_avatar = user_avatar
+        self.weather_api = weather_api
         
     def json(self):
         return {'id':self.id, 'assistant_name':self.name, 'prompt':self.prompt, 
@@ -183,7 +185,8 @@ class Assistant(db.Model):
                 'facebook_token':self.facebook_token,
                 'created_at':self.created_at,
                 'assistant_avatar':self.assistant_avatar,
-                'user_avatar':self.user_avatar}
+                'user_avatar': self.user_avatar,
+                'weather_api':self.weather_api}
     
     def __repr__(self):
         return f"<Assistant {self.name}>"
