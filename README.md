@@ -1,16 +1,20 @@
-## Running Locally
-
-After cloning the repo, put your API key in `.env`.
-
-Then, run the following in the command line and your application will be available at `http://localhost:3000`
-
-```bash
-npm i -g vercel
-vercel dev
+## Install necessary python packages
+```
+pip install -r requirements.txt
 ```
 
-To use the API route, go to the link below in your browser or run a curl command in your terminal to get a sample result. Feel free to replace the dub.sh link with a link to any image.
+## Running Locally
+
+After cloning the repo, put your environmental variables in `.env`.
+```
+OPENAI_API_KEY = 
+UPLOAD_FOLDER =
+SERPER_API_KEY =  
+STROM_GLASS_API_KEY = 
+```
+
+Then, run the following in the command line and your application will be available at `http://localhost:5000`
 
 ```bash
-curl http://localhost:3000/generate?imageUrl=https://dub.sh/confpic
+python app.py
 ```
