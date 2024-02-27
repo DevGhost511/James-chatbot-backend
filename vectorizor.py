@@ -155,12 +155,11 @@ def preprompt_generate(query, assistant_id):
 
 
 def simple_generate(query):
-    prompt = f'Q: Give me detailed information about {query}. Include the necessary place google map link at the end. A:'
     response = openai.chat.completions.create(
         model="gpt-4-turbo-preview",
         messages=[
             {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": prompt}
+            {"role": "user", "content": query}
         ]
     )
     return response.choices[0].message.content
@@ -428,51 +427,51 @@ def serp_result(query):
         print('SERP Result >>>', result)
         print(f'>>> Google search takes {end_time-start_time} seconds')
         return result
-        # ask_with_search = initialize_agent(tools, llm, agent=AgentType.SELF_ASK_WITH_SEARCH, verbose=True)
-        # print("I am here =============>", query)
-        
-        # result = ask_with_search.invoke(query)
-        # print("I am here =============>", result)
-        # llm = OpenAI(temperature=0)
-        # search = GoogleSerperAPIWrapper()
-        # tools = [
-        #     Tool(
-        #         name="Intermediate Answer",
-        #         func=search.run,
-        #         description="useful for when you need to ask with search"
-        #     )
-        # ]
-
-        # self_ask_with_search = initialize_agent(tools, llm, agent=AgentType.SELF_ASK_WITH_SEARCH, verbose=True, handle_parsing_errors=True)
-        # result = self_ask_with_search.run("What is the google search result for "+ query)
-
        
     except Exception as e:
         print(str(e))
         return 'There is no relevant information.'
-    
+
+# Generate an image for surf bot  
+def generate_surfing_image(surf_instructions, beach):
+    try:
+        image_prompt = f"Real Photo of someone surfing the best wave at {beach}. Put someone at this location, on a wave, and on this board doing this surf style. make sure the physics of the surfer angle based on the wave is correct positioning, human photo realistic. No words or text"
+        print("Generating surfing image with prompt:", image_prompt)
+        headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {OPENAI_API_KEY}"
+            }
+        payload = {
+            "model": "dall-e-3",
+            "prompt": image_prompt,
+            "n": 1,
+            "size": "1024x1024",
+            "response_format":"url"
+        }
+        response = requests.post("https://api.openai.com/v1/images/generations", headers=headers, json=payload)
+        # print(response.json())
+        json_res = response.json()
+        print("Json data of image url >>>>>", json_res)
+        image_url = json_res["data"][0]["url"]
+        print("Generated Surfing Image URL: %s", image_url)
+        return image_url
+    except Exception as e:
+        print("Failed to generate surfing image: %s", e)
+        return None
+
 # Generate an image using dall-e-3 model
 def generate_image(query):
     try:
-        prompt = f"""
-        Generate an image that represents the essence of the following recipe:
-        {query}
-        Please create an image that conveys the heartiness and deliciousness of the food.
-        """
-        # client = OpenAI()
-        # response = client.images.generate(
-        #         model="dall-e-3",
-        #         prompt="A cute baby sea otter",
-        #         n=1,
-        #         size="1024x1024"
-        #     )
+        descriptive_prompt = "Imagine you are making an image of this finished cooked meal. Include descriptive terms related to the dish itself, such as its appearance, colors, textures, arrangement, and any unique presentation details. Also, consider aspects like lighting, angles, and settings to enhance the visual appeal of the dish."
+    
         print("Generating images...")
         headers = {
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {OPENAI_API_KEY}"
             }
 
-        print("Prompt for generating an image >>>", prompt)
+        prompt = "Content: " +descriptive_prompt+" + Recipe: "+ query + "including camera and lighting and quality angles of variations and unique image locations. be descriptive like a photographer describing, no rustic"
+        print("Prompt >>>", prompt)
         payload = {
             "model": "dall-e-3",
             "prompt": prompt,
@@ -489,6 +488,7 @@ def generate_image(query):
     except Exception as e:
         print(str(e))
         return str(e)
+
 # Get result from sql
 def sql_result(assistant_id, query):
     try:

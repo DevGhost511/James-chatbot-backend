@@ -7,7 +7,7 @@ from sqlalchemy import func, desc
 from flask_cors import CORS
 from flask_migrate import Migrate
 from werkzeug.utils import secure_filename
-from utils import generate_kb_from_file, generate_kb_from_url, get_response
+from utils import generate_surf_response, generate_kb_from_file, generate_kb_from_url, get_response
 from models import db, ChatId, User, PushPrompt, PrePrompt, CloserPrompt, KnowledgeBase, Assistant, ChatHistory, InheritChat
 from vectorizor import generate_image, image_qeury, generate_final_answer,pinecone_result, sql_result, serp_result, simple_generate, del_knowledge_by_knowledge_id, del_knowledgebase_by_assistant_id, del_all_records, preprompt_generate, query_with_dolt, sql_connect, pinecone_connect, query_with_both
 
@@ -104,6 +104,7 @@ def test_sql():
    print('Result >>>', result)
    return make_response(jsonify({'result':result}))
 
+#  Pinecone connectivity test api
 @app.route('/test_pinecone', methods =['POST'])
 def test_pinecone():
    data = request.get_json()
@@ -113,6 +114,15 @@ def test_pinecone():
    print('Result >>>', result)
    return make_response(jsonify({'result':result}))
 
+
+@app.route('/test_weather_api', methods = ['POST'])
+def test_weather_api():
+   data = request.get_json()
+   query = data['query']
+   result = generate_surf_response(query)
+   return make_response(jsonify({'response':result}), 201)
+
+# API to get user's query
 @app.route('/user_query', methods=['POST'])
 def test_final():
    try:
@@ -122,6 +132,9 @@ def test_final():
       print("Received from frontend=====>", data)
       chat_id = data['chat_id']
       chat = ''
+      hashtags = ''
+      image_url = ''
+      response = ''
       if 'assistant_id' in data:
          assistant_id = data['assistant_id']
       else :
@@ -150,12 +163,15 @@ def test_final():
             response = "There is an error in Backend!"
       else:
          print("There is no image file")
-         # Get 3 recent chat history
-         chat_history = ChatHistory.query.filter_by(chat_id=chat_id).order_by(desc(ChatHistory.created_at)).limit(3).all()
-         latest_records = [chat.json() for chat in chat_history]   
+         if assistant_id == "8":
+            response, image_url, hashtags = generate_surf_response(query)
+            
+         else:
+            # Get 3 recent chat history
+            chat_history = ChatHistory.query.filter_by(chat_id=chat_id).order_by(desc(ChatHistory.created_at)).limit(3).all()
+            latest_records = [chat.json() for chat in chat_history]   
+            response = generate_final_answer(assistant_id=assistant_id, query=query)
          
-         response = generate_final_answer(assistant_id=assistant_id, query=query)
-      image_url = ''
       print("assistant id is >>>>>", assistant_id)
       if assistant_id == "5":
          print("Recipes >>>>>", response)
@@ -173,13 +189,15 @@ def test_final():
       end_time = time.time()
       # print(response)
       print(f"The query took {end_time-start_time} seconds")
-
-      return make_response(jsonify({'response':response, 'closer':closer_prompt.prompt, 'pre_prompts':pre_prompts, 'chat_id':new_chat.chat_id, 'image':image_url}), 201)
+      print(image_url)
+      return make_response(jsonify({'response':response, 'closer':closer_prompt.prompt, 'pre_prompts':pre_prompts, 'chat_id':new_chat.chat_id, 'hashtags':hashtags, 'image':image_url}), 201)
 
    except Exception as e:
       print(str(e))
       response = 'Busy network. Try again later'
       return make_response(jsonify({'response':response}), 201)
+
+# Generate image test api
 @app.route('/generate_image', methods=['POST'])
 def generate_iamge_from():
    data = request.get_json()
