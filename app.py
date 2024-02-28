@@ -186,6 +186,9 @@ def test_final():
       #  Save messages to database  
       db.session.add(new_chat)
       db.session.commit()
+      image_enable = Assistant.query.filter_by(id=assistant_id).first().image
+      if image_enable == 0:
+         image_url = ''
       end_time = time.time()
       # print(response)
       print(f"The query took {end_time-start_time} seconds")
@@ -734,6 +737,7 @@ def add_assistant():
    assistant_avatar = data['assistant_avatar']
    user_avatar = data['user_avatar']
    weather_api = data['weather_api']
+   image_enable = data['image_enable']
    print(data)
    if use_sql:
       sql_host = data['sql_host']
@@ -762,7 +766,7 @@ def add_assistant():
 
    with app.app_context():
       try:
-         new_assistant = Assistant(name=assistant_name, prompt=prompt, use_sql=use_sql,use_pinecone=use_pinecone,use_serp=use_serp, facebook_enable=facebook_enable, facebook_token=facebook_token, sql_host=sql_host, sql_username=sql_username, sql_password=sql_password, sql_port=sql_port, sql_db_name=sql_db_name, pinecone_api_key=pinecone_api_key, pinecone_environment=pinecone_environment, pinecone_index_name=pinecone_index_name, assistant_avatar = assistant_avatar, user_avatar= user_avatar, weather_api=weather_api)
+         new_assistant = Assistant(name=assistant_name, prompt=prompt, use_sql=use_sql,use_pinecone=use_pinecone,use_serp=use_serp, facebook_enable=facebook_enable, facebook_token=facebook_token, sql_host=sql_host, sql_username=sql_username, sql_password=sql_password, sql_port=sql_port, sql_db_name=sql_db_name, pinecone_api_key=pinecone_api_key, pinecone_environment=pinecone_environment, pinecone_index_name=pinecone_index_name, assistant_avatar = assistant_avatar, user_avatar= user_avatar, weather_api=weather_api, image = image_enable)
          db.session.add(new_assistant)
          db.session.commit()
          print('Successfully saved assistant')
@@ -825,6 +829,7 @@ def update_assistant():
       assistant_avatar = data['assistant_avatar']
       user_avatar = data['user_avatar']
       weather_api = data['weather_api']
+      image_enable = data['image_enable']
       if use_sql:
          sql_host = data['sql_host']
          sql_username = data['sql_username']
@@ -870,6 +875,7 @@ def update_assistant():
          assistant.assistant_avatar = assistant_avatar
          assistant.user_avatar = user_avatar
          assistant.weather_api = weather_api
+         assistant.image = image_enable
 
          db.session.commit()
          return make_response(jsonify(assistant.json()), 201)
